@@ -11,7 +11,7 @@ CREATE TABLE club (
 );
 
 CREATE TABLE match(
-	id INT AUTO_INCREMENT PRIMARY KEY,
+	id INT PRIMARY KEY,
     dateutc DATETIME NOT NULL,
     competition VARCHAR(100) NOT NULL,
     venue_id INT,
