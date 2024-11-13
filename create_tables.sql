@@ -6,7 +6,7 @@ CREATE TABLE club (
     name VARCHAR(50) NOT NULL,
     officialname VARCHAR(150) NOT NULL,
     country VARCHAR(50) NOT NULL,
-    venue_id INT NOT NULL,
+    venue_id INT,
     FOREIGN KEY (venue_id) REFERENCES football_stadiums(id)
 );
 
@@ -14,7 +14,7 @@ CREATE TABLE match(
 	id INT AUTO_INCREMENT PRIMARY KEY,
     dateutc DATETIME NOT NULL,
     competition VARCHAR(100) NOT NULL,
-    venue_id INT NOT NULL,
+    venue_id INT,
     home_club VARCHAR(20) NOT NULL,
     away_club VARCHAR(20) NOT NULL,
     winner VARCHAR(20) NOT NULL,
