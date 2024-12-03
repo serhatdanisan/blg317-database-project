@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Stadium List{% endblock %}
+
+{% block header %}Stadiums{% endblock %}
+
+{% block content %}
+<h2>Stadiums</h2>
+
+<!-- Add Stadium Button -->
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('stadium.add_stadium') }}" class="button">Add New Stadium</a>
+</div>
+
+<!-- Stadium Table -->
+{% if stadiums %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>Capacity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stadium in stadiums %}
+            <tr>
+                <td>{{ stadium.name }}</td>
+                <td>{{ stadium.city }}</td>
+                <td>{{ stadium.country }}</td>
+                <td>{{ "{:,}".format(stadium.capacity) }} spectators</td>
+                <td>
+                    <a href="{{ url_for('stadium.get_stadium', id=stadium.id) }}">View</a>
+                    <a href="{{ url_for('stadium.edit_stadium', id=stadium.id) }}">Edit</a>
+                    <form action="{{ url_for('stadium.delete_stadium', id=stadium.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete this stadium?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No stadiums found.</p>
+{% endif %}
+{% endblock %}

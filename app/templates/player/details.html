@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Player Details{% endblock %}
+
+{% block header %}Player Details{% endblock %}
+
+{% block content %}
+{% if player %}
+    <h2>{{ player.firstname }} {{ player.lastname }}</h2>
+    <p><strong>Birthdate:</strong> {{ player.birthdate }}</p>
+    <p><strong>Country:</strong> {{ player.country }}</p>
+    <p><strong>Position:</strong> {{ player.position }}</p>
+    <p><strong>Main Foot:</strong> {{ player.foot }}</p>
+    <p><strong>Height:</strong> {{ player.height }} cm</p>
+
+    {% if player.club %}
+        <h3>Club Information:</h3>
+        <p><strong>Club:</strong> {{ player.club.name }} ({{ player.club.official_name }})</p>
+        <p><strong>Stadium:</strong> {{ player.club.stadium }} - {{ player.club.city }}</p>
+        <p><strong>Capacity:</strong> {{ player.club.capacity }}</p>
+    {% endif %}
+{% else %}
+    <p>{{ error }}</p>
+{% endif %}
+{% endblock %}

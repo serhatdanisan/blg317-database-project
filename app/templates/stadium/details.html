@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Stadium Details{% endblock %}
+
+{% block header %}Stadium Details{% endblock %}
+
+{% block content %}
+{% if stadium %}
+    <h2>{{ stadium.name }}</h2>
+    <p><strong>City:</strong> {{ stadium.city }}</p>
+    <p><strong>Country:</strong> {{ stadium.country }}</p>
+    <p><strong>Capacity:</strong> {{ "{:,}".format(stadium.capacity) }} spectators</p>
+    <p><strong>Confederation:</strong> {{ stadium.confederation }}</p>
+{% else %}
+    <p>{{ error }}</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Add Player{% endblock %}
+
+{% block header %}Add Player{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <label>First Name:</label>
+    <input type="text" name="firstname" required>
+    <label>Last Name:</label>
+    <input type="text" name="lastname" required>
+    <label>Birthdate:</label>
+    <input type="date" name="birthdate">
+    <label>Country:</label>
+    <select name="country_id">
+        <option value="">Select Country</option>
+        {% for country in countries %}
+        <option value="{{ country[0] }}">{{ country[1] }}</option>
+        {% endfor %}
+    </select>
+    <label>Position:</label>
+    <input type="text" name="position">
+    <label>Foot:</label>
+    <select name="foot">
+        <option value="left">Left</option>
+        <option value="right">Right</option>
+        <option value="both">Both</option>
+    </select>
+    <label>Height:</label>
+    <input type="number" name="height" min="0">
+    <button type="submit">Add Player</button>
+</form>
+{% endblock %}

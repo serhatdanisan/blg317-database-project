@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Player{% endblock %}
+
+{% block header %}Edit Player{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <label>First Name:</label>
+    <input type="text" name="firstname" value="{{ player.firstname }}" required>
+    <label>Last Name:</label>
+    <input type="text" name="lastname" value="{{ player.lastname }}" required>
+    <label>Birthdate:</label>
+    <input type="date" name="birthdate" value="{{ player.birthdate }}">
+    <label>Country:</label>
+    <select name="country_id">
+        <option value="">Select Country</option>
+        {% for country in countries %}
+        <option value="{{ country[0] }}" {% if country[0] == player.country_id %}selected{% endif %}>
+            {{ country[1] }}
+        </option>
+        {% endfor %}
+    </select>
+    <label>Position:</label>
+    <input type="text" name="position" value="{{ player.position }}">
+    <label>Foot:</label>
+    <select name="foot">
+        <option value="left" {% if player.foot == 'left' %}selected{% endif %}>Left</option>
+        <option value="right" {% if player.foot == 'right' %}selected{% endif %}>Right</option>
+        <option value="both" {% if player.foot == 'both' %}selected{% endif %}>Both</option>
+    </select>
+    <label>Height:</label>
+    <input type="number" name="height" value="{{ player.height }}" min="0">
+    <button type="submit">Save Changes</button>
+</form>
+{% endblock %}

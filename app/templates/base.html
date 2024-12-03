@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Football App{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='foot.ico') }}">
+</head>
+</head>
+<body>
+    <header>
+        <h1>{% block header %}Football App{% endblock %}</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('player.get_players') }}">Players List</a></li>
+                <li><a href="{{ url_for('stadium.get_stadiums') }}">Stadiums</a></li>
+                <li><a href="{{ url_for('match.get_matches') }}">Matches</a></li>
+                <li><a href="{{ url_for('country.get_countries') }}">Countries</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>Football App © 2024</p>
+    </footer>
+</body>
+</html>
