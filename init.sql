@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS "football_match_event" (
     "football_match_id" INT REFERENCES "football_match"("id") ON DELETE CASCADE ON UPDATE CASCADE,
     "player_id" INT REFERENCES "player"("id") ON DELETE CASCADE ON UPDATE CASCADE,
     "matchperiod" VARCHAR(50),
-    "eventsec" INT CHECK (eventsec >= 0),
+    "eventsec" FLOAT CHECK (eventsec >= 0),
     "eventname" VARCHAR(255),
     "action" VARCHAR(255),
     "modifier" VARCHAR(255),
