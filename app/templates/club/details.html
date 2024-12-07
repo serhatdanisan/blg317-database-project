@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Club Details{% endblock %}
+
+{% block header %}Club Details{% endblock %}
+
+{% block content %}
+{% if club %}
+    <h2>{{ club.name }}</h2>
+    <p><strong>Official Name:</strong> {{ club.officialname }}</p>
+    <p><strong>Country:</strong> {{ club.country }}</p>
+    <p><strong>Stadium:</strong> {{ club.stadium }}</p>
+{% else %}
+    <p>Club details not found.</p>
+{% endif %}
+{% endblock %}

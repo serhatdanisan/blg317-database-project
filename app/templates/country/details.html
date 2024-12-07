@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Country Details{% endblock %}
+
+{% block header %}Country Details{% endblock %}
+
+{% block content %}
+{% if country %}
+    <h2>{{ country.name }}</h2>
+    <p><strong>Capital City:</strong> {{ country.capital_city }}</p>
+    <p><strong>Region:</strong> {{ country.region }}</p>
+{% else %}
+    <p>Country details not found.</p>
+{% endif %}
+{% endblock %}

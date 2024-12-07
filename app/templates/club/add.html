@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Add Club{% endblock %}
+
+{% block header %}Add Club{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <label>Name:</label>
+    <input type="text" name="name" required>
+
+    <label>Official Name:</label>
+    <input type="text" name="officialname" required>
+
+    <label>Country:</label>
+    <select name="country" required>
+        <option value="">Select Country</option>
+        {% for country in countries %}
+        <option value="{{ country[1] }}">{{ country[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Stadium:</label>
+    <select name="stadiums_id">
+        <option value="">Select Stadium</option>
+        {% for stadium in stadiums %}
+        <option value="{{ stadium[0] }}">{{ stadium[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Add Club</button>
+</form>
+{% endblock %}

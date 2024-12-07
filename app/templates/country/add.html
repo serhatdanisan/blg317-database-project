@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Add Country{% endblock %}
+
+{% block header %}Add Country{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <label>Name:</label>
+    <input type="text" name="name" required>
+
+    <label>Capital City:</label>
+    <input type="text" name="capital_city" required>
+
+    <label>Region:</label>
+    <input type="text" name="region" required>
+
+    <button type="submit">Add Country</button>
+</form>
+{% endblock %}
