@@ -63,64 +63,71 @@ def add_stadium():
     """Adds a new stadium."""
     if request.method == 'POST':
         try:
-            name = request.form['name']
+            stadium = request.form['stadium']
             city = request.form['city']
             capacity = int(request.form['capacity'])
             confederation = request.form['confederation']
+            country_id= request.form['country_id']
 
             query = """
-            INSERT INTO stadiums (stadium, city, capacity, confederation)
-            VALUES (%s, %s, %s, %s);
+            INSERT INTO stadiums (stadium, city, capacity, confederation, country_id)
+            VALUES (%s, %s, %s, %s, %s);
             """
-            db.executeQuery(query, params=(name, city, capacity, confederation), commit=1)
+            db.executeQuery(query, params=(stadium, city, capacity, confederation, country_id), commit=1)
             flash('Stadium added successfully!', 'success')
             return redirect(url_for('stadium.get_stadiums'))
         except Exception as e:
             print(f"Error adding stadium: {e}")
             flash('Error adding stadium. Please try again.', 'danger')
-    return render_template('stadium/add.html')
+    countries = db.executeQuery("SELECT id, country FROM countries ORDER BY country;")
+    return render_template('stadium/add.html', countries=countries)
 
 @stadium_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_stadium(id):
     """Edits an existing stadium."""
     if request.method == 'POST':
         try:
-            name = request.form['name']
+            confederation = request.form['confederation']
+            stadium = request.form['stadium']
             city = request.form['city']
             capacity = int(request.form['capacity'])
-            confederation = request.form['confederation']
+            country_id = request.form['country_id']
 
             query = """
             UPDATE stadiums
-            SET stadium = %s, city = %s, capacity = %s, confederation = %s
+            SET confederation = %s, stadium = %s, city = %s, capacity = %s, country_id = %s
             WHERE id = %s;
             """
-            db.executeQuery(query, params=(name, city, capacity, confederation, id), commit=1)
+            db.executeQuery(query, params=(confederation, stadium, city, capacity, country_id, id), commit=1)
             flash('Stadium updated successfully!', 'success')
             return redirect(url_for('stadium.get_stadiums'))
         except Exception as e:
             print(f"Error updating stadium: {e}")
             flash('Error updating stadium. Please try again.', 'danger')
     else:
-        # Fetch stadium details for pre-filling the form
         query = """
-        SELECT id, stadium, city, capacity, confederation
+        SELECT id, confederation, stadium, city, capacity, country_id
         FROM stadiums
         WHERE id = %s;
         """
         stadium_data = db.executeQuery(query, params=(id,))
+        print("Stadium Data:", stadium_data)  # Debugging
+
         if not stadium_data:
             flash(f"Stadium with ID {id} not found.", 'danger')
             return redirect(url_for('stadium.get_stadiums'))
 
         stadium = {
             "id": stadium_data[0][0],
-            "name": stadium_data[0][1],
-            "city": stadium_data[0][2],
-            "capacity": stadium_data[0][3],
-            "confederation": stadium_data[0][4],
+            "confederation": stadium_data[0][1],
+            "stadium": stadium_data[0][2],
+            "city": stadium_data[0][3],
+            "capacity": stadium_data[0][4],
+            "country_id": stadium_data[0][5],
         }
-        return render_template('stadium/edit.html', stadium=stadium)
+        countries = db.executeQuery("SELECT id, country FROM countries ORDER BY country;")
+        return render_template('stadium/edit.html', stadium=stadium, countries=countries)
+
 
 @stadium_bp.route('/delete/<int:id>', methods=['POST'])
 def delete_stadium(id):
