@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Add Event{% endblock %}
+
+{% block header %}Add Event{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <label>Club:</label>
+    <select name="club_id" required>
+        <option value="">Select Club</option>
+        {% for club in clubs %}
+        <option value="{{ club[0] }}">{{ club[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Match:</label>
+    <select name="football_match_id" required>
+        <option value="">Select Match</option>
+        {% for match in matches %}
+        <option value="{{ match[0] }}">{{ match[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Player:</label>
+    <select name="player_id" required>
+        <option value="">Select Player</option>
+        {% for player in players %}
+        <option value="{{ player[0] }}">{{ player[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Match Period:</label>
+    <input type="text" name="matchperiod" required>
+
+    <label>Event Second:</label>
+    <input type="number" name="eventsec" min="0" step="0.01"required>
+
+    <label>Event Name:</label>
+    <input type="text" name="eventname" required>
+
+    <label>Action:</label>
+    <input type="text" name="action" required>
+
+    <label>Modifier:</label>
+    <input type="text" name="modifier" required>
+
+    <label>X Begin:</label>
+    <input type="number" name="x_begin" required>
+
+    <label>Y Begin:</label>
+    <input type="number" name="y_begin" required>
+
+    <label>X End:</label>
+    <input type="number" name="x_end" step="0.01" required>
+
+    <label>Y End:</label>
+    <input type="number" name="y_end" step="0.01" required>
+
+    <label>Success:</label>
+    <input type="checkbox" name="is_success">
+
+    <button type="submit">Add Event</button>
+</form>
+{% endblock %}

@@ -3,6 +3,7 @@ from player import player_bp
 from stadium import stadium_bp
 from country import country_bp
 from club import club_bp
+from event import event_bp
 from database import db
 
 def create_app():
@@ -14,6 +15,7 @@ def create_app():
     app.register_blueprint(stadium_bp, url_prefix='/stadium')
     app.register_blueprint(country_bp, url_prefix='/country')
     app.register_blueprint(club_bp, url_prefix='/club')
+    app.register_blueprint(event_bp, url_prefix='/event')  
     
     # Default route ekliyoruz
     @app.route('/')

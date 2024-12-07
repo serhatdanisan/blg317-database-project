@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Events{% endblock %}
+
+{% block header %}Events{% endblock %}
+
+{% block content %}
+<h2>Event List</h2>
+<div>
+    <a href="{{ url_for('event.add_event') }}">Add Event</a>
+</div>
+<table>
+    <tr>
+        <th>Club</th>
+        <th>Match</th>
+        <th>Player</th>
+        <th>Match Period</th>
+        <th>Event Second</th>
+        <th>Event Name</th>
+        <th>Action</th>
+        <th>Modifier</th>
+        <th>X Begin</th>
+        <th>Y Begin</th>
+        <th>X End</th>
+        <th>Y End</th>
+        <th>Success</th>
+        <th>Actions</th>
+    </tr>
+    {% for event in events %}
+    <tr>
+        <td>{{ event.club_name }}</td>
+        <td>{{ event.match_date }}</td>
+        <td>{{ event.player_name }}</td>
+        <td>{{ event.matchperiod }}</td>
+        <td>{{ event.eventsec }}</td>
+        <td>{{ event.eventname }}</td>
+        <td>{{ event.action }}</td>
+        <td>{{ event.modifier }}</td>
+        <td>{{ event.x_begin }}</td>
+        <td>{{ event.y_begin }}</td>
+        <td>{{ event.x_end }}</td>
+        <td>{{ event.y_end }}</td>
+        <td>{{ 'Yes' if event.is_success else 'No' }}</td>
+        <td>
+            <a href="{{ url_for('event.get_event', id=event.id) }}">View</a> |
+            <a href="{{ url_for('event.edit_event', id=event.id) }}">Edit</a> |
+            <form method="POST" action="{{ url_for('event.delete_event', id=event.id) }}" style="display:inline;">
+                <button type="submit" onclick="return confirm('Are you sure?');">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

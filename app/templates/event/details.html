@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Event Details{% endblock %}
+
+{% block header %}Event Details{% endblock %}
+
+{% block content %}
+{% if event %}
+    <h2>Event Details</h2>
+    <p><strong>Club:</strong> {{ event.club_name }}</p>
+    <p><strong>Match Date:</strong> {{ event.match_date }}</p>
+    <p><strong>Player:</strong> {{ event.player_name }}</p>
+    <p><strong>Match Period:</strong> {{ event.matchperiod }}</p>
+    <p><strong>Event Second:</strong> {{ event.eventsec }}</p>
+    <p><strong>Event Name:</strong> {{ event.eventname }}</p>
+    <p><strong>Action:</strong> {{ event.action }}</p>
+    <p><strong>Modifier:</strong> {{ event.modifier }}</p>
+    <p><strong>X Begin:</strong> {{ event.x_begin }}</p>
+    <p><strong>Y Begin:</strong> {{ event.y_begin }}</p>
+    <p><strong>X End:</strong> {{ event.x_end }}</p>
+    <p><strong>Y End:</strong> {{ event.y_end }}</p>
+    <p><strong>Success:</strong> {{ 'Yes' if event.is_success else 'No' }}</p>
+{% else %}
+    <p>Event details not found.</p>
+{% endif %}
+{% endblock %}
