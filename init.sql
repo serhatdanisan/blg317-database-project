@@ -74,6 +74,13 @@ COPY countries FROM '/data/csv_files/countries.csv' WITH (FORMAT csv, DELIMITER 
 COPY stadiums FROM '/data/csv_files/stadiums.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true);
 COPY club FROM '/data/csv_files/club.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true);
 COPY player FROM '/data/csv_files/player.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true);
-COPY football_match FROM '/data/csv_files/football_match.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true);
+COPY football_match FROM '/data/csv_files/football_match.csv' WITH (FORMAT csv, DELIMITER ',', HEADER true);
 COPY football_match_event FROM '/data/csv_files/football_match_event.csv' WITH (FORMAT csv, DELIMITER ',', HEADER true);
+
+SELECT setval('countries_id_seq', (SELECT MAX(id) FROM countries));
+SELECT setval('stadiums_id_seq', (SELECT MAX(id) FROM stadiums));
+SELECT setval('club_id_seq', (SELECT MAX(id) FROM club));
+SELECT setval('player_id_seq', (SELECT MAX(id) FROM player));
+SELECT setval('football_match_id_seq', (SELECT MAX(id) FROM football_match));
+SELECT setval('football_match_event_id_seq', (SELECT MAX(id) FROM football_match_event));
 
