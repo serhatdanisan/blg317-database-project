@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Match Details{% endblock %}
+
+{% block header %}Match Details{% endblock %}
+
+{% block content %}
+{% if match %}
+    <h2>{{ match.home_club }} vs {{ match.away_club }}</h2>
+    <p><strong>Date:</strong> {{ match.dateutc }}</p>
+    <p><strong>Competition:</strong> {{ match.competition }}</p>
+    <p><strong>Season:</strong> {{ match.season }}</p>
+    <p><strong>Stadium:</strong> {{ match.stadium }}</p>
+    <p><strong>Goals by Home Club:</strong> {{ match.goal_by_home_club }}</p>
+    <p><strong>Goals by Away Club:</strong> {{ match.goal_by_away_club }}</p>
+    <p><strong>Winner:</strong> {{ match.winner or "N/A" }}</p>
+{% else %}
+    <p>Match details not found.</p>
+{% endif %}
+{% endblock %}
