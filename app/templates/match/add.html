@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Add Match{% endblock %}
+
+{% block header %}Add Match{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <label>Date (UTC):</label>
+    <input type="datetime-local" name="dateutc" required>
+    
+    <label>Competition:</label>
+    <input type="text" name="competition" required>
+    
+    <label>Season:</label>
+    <input type="number" name="season" min="1900" required>
+    
+    <label>Stadium:</label>
+    <select name="stadiums_id" required>
+        <option value="">Select Stadium</option>
+        {% for stadium in stadiums %}
+        <option value="{{ stadium[0] }}">{{ stadium[1] }}</option>
+        {% endfor %}
+    </select>
+    
+    <label>Home Club:</label>
+    <select name="home_club" required>
+        <option value="">Select Home Club</option>
+        {% for club in clubs %}
+        <option value="{{ club[0] }}">{{ club[1] }}</option>
+        {% endfor %}
+    </select>
+    
+    <label>Away Club:</label>
+    <select name="away_club" required>
+        <option value="">Select Away Club</option>
+        {% for club in clubs %}
+        <option value="{{ club[0] }}">{{ club[1] }}</option>
+        {% endfor %}
+    </select>
+    
+    <label>Winner:</label>
+    <select name="winner">
+        <option value="">Select Winner</option>
+        {% for club in clubs %}
+        <option value="{{ club[0] }}">{{ club[1] }}</option>
+        {% endfor %}
+    </select>
+    
+    <label>Goals by Home Club:</label>
+    <input type="number" name="goal_by_home_club" min="0" required>
+    
+    <label>Goals by Away Club:</label>
+    <input type="number" name="goal_by_away_club" min="0" required>
+    
+    <button type="submit">Add Match</button>
+</form>
+{% endblock %}
