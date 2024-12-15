@@ -38,6 +38,7 @@ def get_matches():
         print(f"Error fetching matches: {e}")
     return render_template('match/index.html', matches=matches)
 
+'''
 @match_bp.route('<int:id>')
 def get_match(id):
     try:
@@ -71,7 +72,7 @@ def get_match(id):
         flash("Error fetching match details.", "danger")
         return redirect(url_for('match.get_matches'))
     return render_template('match/details.html', match=match)
-
+'''
 @match_bp.route('/add', methods=['GET', 'POST'])
 def add_match():
     """Adds a new match."""

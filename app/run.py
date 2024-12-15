@@ -5,6 +5,7 @@ from country import country_bp
 from club import club_bp
 from event import event_bp
 from match import match_bp
+from stats_page import match_details_bp
 from database import db
 
 def create_app():
@@ -18,6 +19,7 @@ def create_app():
     app.register_blueprint(club_bp, url_prefix='/club')
     app.register_blueprint(event_bp, url_prefix='/event')  
     app.register_blueprint(match_bp, url_prefix='/match')  
+    app.register_blueprint(match_details_bp)   
     
     # Default route ekliyoruz
     @app.route('/')
