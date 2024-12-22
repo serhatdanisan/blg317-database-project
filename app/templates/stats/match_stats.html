@@ -1,74 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Details</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='match_details.css') }}">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-brand"><a href="#home">FootDATA</a></div>
-        <ul class="navbar-links">
-            <li><a href="#about">LEAGUES</a></li>
-            <li><a href="#services">TEAMS</a></li>
-            <li><a href="#contact">MATCHES</a></li>
-            <li><a href="#contact">ABOUT</a></li>
-        </ul>
-    </nav>
-    <div class="match-content">
-        <span class="home-name">{{ match[5] }}</span>
-        <div class="score-container">
-            <div class="leaguename">{{ match[9] }}</div>
-            <div class="score">
-                <span class="home-score">{{ match[10] }}</span>:<span class="away-score">{{ match[11] }}</span>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Match Details</title>
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='match_details.css') }}">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="navbar-brand"><a href="#home">FootDATA</a></div>
+            <ul class="navbar-links">
+                <li><a href="#about">LEAGUES</a></li>
+                <li><a href="#services">TEAMS</a></li>
+                <li><a href="#contact">MATCHES</a></li>
+                <li><a href="#contact">ABOUT</a></li>
+            </ul>
+        </nav>
+        <div class="content">
+            {% include "stats/match_summary.html" %}
+
+            <div class="main-tab-controls">
+                <div class="main-tab-links">
+                    <button class="main-tab-link active"
+                        data-tab="main-tab-key-events">Key Events</button>
+                    <button class="main-tab-link"
+                        data-tab="main-tab-stats">Stats</button>
+                    <button class="main-tab-link"
+                        data-tab="main-tab-coordinates">Coordinates</button>
+                </div>
             </div>
-            <div class="match-date">{{ match[8] }}</div>
+            <div class="first_row">
+                <div class="main-tabs">
+                    <div class="main-tab-contents">
+                        <div class="main-tab-content active"
+                            id="main-tab-key-events">
+                            {% include "stats/key_events.html" %}
+                        </div>
+                        <div class="main-tab-content" id="main-tab-stats">
+                            {% include "stats/stats_bars.html" %}
+                        </div>
+                    </div>
+                    <div class="main-tab-content" id="main-tab-coordinates">
+                        {% include "stats/stats_coordinates.html" %}
+                    </div>
+                </div>
+
+                <div class="side-container">
+                    {% include "stats/match_details.html" %}
+                    {% include "stats/starting_XI.html" %}
+                    {% if home_last_5 and away_last_5 %}
+                    {% include "stats/form_guides.html" %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <script>
+    const shots = {{ shots | tojson | safe }};
+            </script>
+            <script
+                src="{{ url_for('static', filename='js/shots_script.js') }}"></script>
+            <script
+                src="{{ url_for('static', filename='js/tabs_script.js') }}"></script>
+
+            <script
+                src="{{ url_for('static', filename='js/main_tabs.js') }}"></script>
         </div>
-        <span class="away-name">{{ match[6] }}</span>
-    </div>
-    <div class="stats-container">
-        {% for event in event_widths %}
-        <div class="stats-row">
-            <div class="event-name">
-                <span>{{ event.eventname }}</span>
-            </div>
-
-            <div class="home-stat">
-                <span class="stat-value">{{ event.home_count }}</span>
-            </div>
-
-            <div class="bar-container">
-                <div class="bar home-bar" style="width: {{ event.home_width }}%;"></div>
-                <div class="bar away-bar" style="width: {{ event.away_width }}%;"></div>
-            </div>
-
-            <div class="away-stat">
-                <span class="stat-value">{{ event.away_count }}</span>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    <h1>Match Shot Visualization</h1>
-    <div class="field-container">
-
-        <div class="field">
-            <svg width="100%" height="100%" viewBox="0 0 105 68" xmlns="http://www.w3.org/2000/svg">
-                {% for shot in home_shots %}
-                <circle cx="{{ shot.x }}" cy="{{ shot.y }}" r="1.5" fill="white" />
-                {% endfor %}
-            </svg>
-        </div>
-
-        <div class="field">
-            <svg width="100%" height="100%" viewBox="0 0 105 68" xmlns="http://www.w3.org/2000/svg">
-                {% for shot in away_shots %}
-                <circle cx="{{ shot.x }}" cy="{{ shot.y }}" r="1.5" fill="white" />
-                {% endfor %}
-            </svg>
-        </div>
-    </div>
-    
-    
-</body>
+    </body>
 </html>

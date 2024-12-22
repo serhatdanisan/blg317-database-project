@@ -1,0 +1,85 @@
+<div class="match-summary-container"
+    style="background-image: url('{{ url_for('static', filename='images/match-header-texture.webp') }}')">
+
+    <div class="league-name">{{ match.league }}</div>
+    <div class="match-date">{{ match.date.strftime("%d %b %Y")
+        }}</div>
+
+    <div class="teams-and-scores">
+        <div class="home-team-info">
+            <div class="team-name home-team">{{ match.home_name
+                }}</div>
+            <img class="team-logo home-team"
+                src="{{ url_for('static', filename='images/Clubs/' + match.home_id|string + '.png') }}">
+        </div>
+
+        <div class="mid-section">
+            <div class="score">
+                <div class="team-score home-score">{{
+                    match.home_score
+                    }}</div>
+                <div class="separator">-</div>
+                <div class="team-score away-score">{{
+                    match.away_score
+                    }}</div>
+            </div>
+        </div>
+
+        <div class="away-team-info">
+            <img class="team-logo away-team"
+                src="{{ url_for('static', filename='images/Clubs/' + match.away_id|string + '.png') }}">
+            <div class="team-name away-team">{{ match.away_name
+                }}</div>
+        </div>
+    </div>
+
+    <div class="full-time">FT</div>
+
+    <div class="separator-line"></div>
+
+    <div class="goals-container">
+
+        <div class="home-goals">
+            {% for goal in home_goals %}
+            {% if loop.index0 % 3 == 0 %}
+            <div class="goal-row">
+                {% endif %}
+                <div class="goal-item">
+                    {{ goal.minute }}' {{ goal.player_name }}
+                    {% if goal.is_own_goal %}
+                    (o.g.)
+                    {% elif goal.is_penalty %}
+                    (P)
+                    {% endif %}
+                </div>
+                {% if loop.index0 % 3 == 2 or loop.last %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="away-goals">
+            {% for goal in away_goals %}
+            {% if loop.index0 % 3 == 0 %}
+            <div class="goal-row">
+                {% endif %}
+                <div class="goal-item">
+                    {{ goal.minute }}' {{ goal.player_name }}
+                    {% if goal.is_own_goal %}
+                    (o.g.)
+                    {% elif goal.is_penalty %}
+                    (P)
+                    {% endif %}
+                </div>
+                {% if loop.index0 % 3 == 2 or loop.last %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="match-ht-ft">
+        {{ ht_ft }}
+    </div>
+
+</div>

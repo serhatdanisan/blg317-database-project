@@ -1,0 +1,57 @@
+<div class="starting-XI">
+    <div class="card-header-with-shadow">Starting Line
+        Ups</div>
+
+    <div class="tabs">
+        <button class="tab-link active" data-tab="home">
+            <div class="tab-team-name">{{ match.home_name
+                }}</div>
+        </button>
+        <button class="tab-link" data-tab="away">
+            <div class="tab-team-name">{{ match.away_name
+                }}</div>
+        </button>
+    </div>
+
+    <div class="tab-content active" id="home">
+        {% for player in home_XI %}
+        <div class="player-row">
+            <div class="player-country-container">
+                <div class="player-image">
+                    <img
+                        src="{{ player_images[player.id] }}">
+                    <div class="player-country">
+                        <img
+                            src="{{ url_for('static', filename='images/Flags/' + player.country_id|string + '.png') }}">
+                    </div>
+                </div>
+            </div>
+            <div class="player-position">{{ player.position
+                }}</div>
+            <div class="v-separator"></div>
+            <div class="player-name">{{ player.name }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="tab-content" id="away">
+        {% for player in away_XI %}
+        <div class="player-row">
+            <div class="player-country-container">
+                <div class="player-image">
+                    <img
+                        src="{{ player_images[player.id] }}">
+                    <div class="player-country">
+                        <img
+                            src="{{ url_for('static', filename='images/Flags/' + player.country_id|string + '.png') }}">
+                    </div>
+                </div>
+            </div>
+            <div class="player-position">{{ player.position
+                }}</div>
+            <div class="v-separator"></div>
+            <div class="player-name">{{ player.name }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

@@ -1,0 +1,168 @@
+<div class="container">
+    <div class="card-header-with-shadow">key
+        events</div>
+    <div class="period-container">
+        {% for event in key_events if event.period
+        == "1H"%}
+        <div class="row">
+            <div
+                class="home-part {% if not event.is_home %}empty{% endif %}">
+                {% if event.is_home %}
+                <div class="event-details home">
+                    <div class="details-up">{{
+                        event.details_up }}</div>
+                    {% if event.icon[:4] == "goal"
+                    %}
+                    <div class="details-down">{{
+                        ' '.join(event.details_down.split(' ')[1:])
+                        }}</div>
+                    {% else %}
+                    <div class="details-down">{{
+                        event.details_down }}</div>
+                    {% endif %}
+                </div>
+                {% if event.icon[:4] == "goal" %}
+                <div class="current-score home">
+                    <img class="icon-home"
+                        src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
+                    {{
+                    event.details_down.split(' ')[0]
+                    }}
+                </div>
+                {% else %}
+                <img class="icon-home"
+                    src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="minute-container">
+                <div class="minute">{{ event.minute
+                    }}'</div>
+            </div>
+
+            <div
+                class="away-part {% if event.is_home %}empty{% endif %}">
+                {% if not event.is_home %}
+                {% if event.icon[:4] == "goal" %}
+                <div class="current-score away">
+                    <img class="icon-away"
+                        src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
+                    {{
+                    event.details_down.split(' ')[0]
+                    }}
+                </div>
+                {% else %}
+                <img class="icon-away"
+                    src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
+                {% endif %}
+                <div class="event-details away">
+                    <div class="details-up">{{
+                        event.details_up }}</div>
+                    {% if event.icon[:4] == "goal"
+                    %}
+                    <div class="details-down">{{
+                        ' '.join(event.details_down.split(' ')[1:])
+                        }}</div>
+                    {% else %}
+                    <div class="details-down">{{
+                        event.details_down }}</div>
+                    {% endif %}
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="period-info">
+        <div class="text-line">
+            <div
+                class="period-separator-line"></div>
+            <span> HT </span>
+            <div
+                class="period-separator-line"></div>
+        </div>
+    </div>
+    <div class="period-container">
+
+        {% for event in key_events if event.period
+        == "2H"%}
+        <div class="row">
+            <div
+                class="home-part {% if not event.is_home %}empty{% endif %}">
+                {% if event.is_home %}
+                <div class="event-details home">
+                    <div class="details-up">{{
+                        event.details_up }}</div>
+                    {% if event.icon[:4] == "goal"
+                    %}
+                    <div class="details-down">{{
+                        ' '.join(event.details_down.split(' ')[1:])
+                        }}</div>
+                    {% else %}
+                    <div class="details-down">{{
+                        event.details_down }}</div>
+                    {% endif %}
+                </div>
+                {% if event.icon[:4] == "goal" %}
+                <div class="current-score home">
+                    <img class="icon-home"
+                        src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
+                    {{
+                    event.details_down.split(' ')[0]
+                    }}
+                </div>
+                {% else %}
+                <img class="icon-home"
+                    src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
+                {% endif %}
+                {% endif %}
+            </div>
+            <div class="minute-container">
+                <div class="minute">{{ event.minute
+                    }}'</div>
+            </div>
+            <div
+                class="away-part {% if  event.is_home %}empty{% endif %}">
+                {% if event.icon[:4] == "goal" %}
+                <div class="current-score away">
+                    <img class="icon-away"
+                        src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
+                    {{
+                    event.details_down.split(' ')[0]
+                    }}
+                </div>
+                {% else %}
+                <img class="icon-away"
+                    src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
+                {% endif %}
+                {% if not event.is_home %}
+                <div class="event-details away">
+                    <div class="details-up">{{
+                        event.details_up }}</div>
+                    {% if event.icon[:4] == "goal"
+                    %}
+                    <div class="details-down">{{
+                        ' '.join(event.details_down.split(' ')[1:])
+                        }}</div>
+                    {% else %}
+                    <div class="details-down">{{
+                        event.details_down }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="period-info">
+        <div class="text-line">
+            <div
+                class="period-separator-line"></div>
+            <span> FT </span>
+            <div
+                class="period-separator-line"></div>
+        </div>
+    </div>
+</div>
