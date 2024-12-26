@@ -3,30 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Football App{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% block title %}FootDATA{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base_style.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='foot.ico') }}">
-</head>
+    {% block stylesheets %}
+    {% endblock %}
 </head>
 <body>
     <header>
-        <h1>{% block header %}Football App{% endblock %}</h1>
-        <nav>
-            <ul>
+        <nav class="navbar">
+            <div class="navbar-brand">{% block header %}<a href="{{ url_for('home.get_matches') }}">FootDATA</a>{% endblock %}</div>
+            <ul class="navbar-links">
                 <li><a href="{{ url_for('player.get_players') }}">Players</a></li>
                 <li><a href="{{ url_for('stadium.get_stadiums') }}">Stadiums</a></li>
                 <li><a href="{{ url_for('country.get_countries') }}">Countries</a></li>
-                <li><a>Clubs</a></li>
-                <a href="{{ url_for('match.get_matches') }}">Matches</a>
-                <a href="{{ url_for('event.get_events') }}">Events</a>
+                <li><a href="{{ url_for('club.get_clubs') }}">Clubs</a></li>
+                <li><a href="{{ url_for('match.get_matches') }}">Matches</a></li>
             </ul>
         </nav>
     </header>
-    <main>
+    
+    <body>
         {% block content %}{% endblock %}
-    </main>
+    </body>
+
     <footer>
-        <p>Football App © 2024</p>
+        <p>FootDATA © 2024</p>
     </footer>
 </body>
 </html>
