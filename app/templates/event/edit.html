@@ -1,11 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}Edit Event{% endblock %}
-
-{% block header %}Edit Event{% endblock %}
-
-{% block content %}
-<form method="POST">
+<form method="POST" action="{{ url_for('event.edit_event', id=event.id) }}" id="edit-event-form">
     <label>Club:</label>
     <select name="club_id" required>
         <option value="">Select Club</option>
@@ -40,7 +33,7 @@
     <input type="text" name="matchperiod" value="{{ event.matchperiod }}" required>
 
     <label>Event Second:</label>
-    <input type="number" name="eventsec" value="{{ event.eventsec }}" min="0" step="0.1" required>
+    <input type="number" name="eventsec" value="{{ event.eventsec }}" min="0" step="0.01" required>
 
     <label>Event Name:</label>
     <input type="text" name="eventname" value="{{ event.eventname }}" required>
@@ -55,17 +48,18 @@
     <input type="number" name="x_begin" value="{{ event.x_begin }}" required>
 
     <label>Y Begin:</label>
-    <input type="number" name="y_begin" value="{{ event.y_begin }}"required>
+    <input type="number" name="y_begin" value="{{ event.y_begin }}" required>
 
     <label>X End:</label>
-    <input type="number" name="x_end" value="{{ event.x_end }}" step="0.01" required>
+    <input type="number" name="x_end" value="{{ event.x_end }}" required>
 
     <label>Y End:</label>
-    <input type="number" name="y_end" value="{{ event.y_end }}" step="0.01" required>
+    <input type="number" name="y_end" value="{{ event.y_end }}" required>
 
-    <label>Success:</label>
+    <div class="checkbox-container">
+    <label>Success: </label>
     <input type="checkbox" name="is_success" {% if event.is_success %}checked{% endif %}>
+</div>
 
     <button type="submit">Save Changes</button>
 </form>
-{% endblock %}

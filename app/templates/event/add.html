@@ -1,11 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}Add Event{% endblock %}
-
-{% block header %}Add Event{% endblock %}
-
-{% block content %}
-<form method="POST">
+<form method="POST" action="{{ url_for('event.add_event') }}" id="add-event-form">
     <label>Club:</label>
     <select name="club_id" required>
         <option value="">Select Club</option>
@@ -62,4 +55,4 @@
 
     <button type="submit">Add Event</button>
 </form>
-{% endblock %}
+

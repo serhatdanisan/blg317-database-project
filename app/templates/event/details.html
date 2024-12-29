@@ -1,26 +1,102 @@
-{% extends "base.html" %}
-
-{% block title %}Event Details{% endblock %}
-
-{% block header %}Event Details{% endblock %}
-
-{% block content %}
-{% if event %}
-    <h2>Event Details</h2>
-    <p><strong>Club:</strong> {{ event.club_name }}</p>
-    <p><strong>Match Date:</strong> {{ event.match_date }}</p>
-    <p><strong>Player:</strong> {{ event.player_name }}</p>
-    <p><strong>Match Period:</strong> {{ event.matchperiod }}</p>
-    <p><strong>Event Second:</strong> {{ event.eventsec }}</p>
-    <p><strong>Event Name:</strong> {{ event.eventname }}</p>
-    <p><strong>Action:</strong> {{ event.action }}</p>
-    <p><strong>Modifier:</strong> {{ event.modifier }}</p>
-    <p><strong>X Begin:</strong> {{ event.x_begin }}</p>
-    <p><strong>Y Begin:</strong> {{ event.y_begin }}</p>
-    <p><strong>X End:</strong> {{ event.x_end }}</p>
-    <p><strong>Y End:</strong> {{ event.y_end }}</p>
-    <p><strong>Success:</strong> {{ 'Yes' if event.is_success else 'No' }}</p>
-{% else %}
-    <p>Event details not found.</p>
-{% endif %}
-{% endblock %}
+<style>
+    .event-details-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+        border-radius: 10px;
+        color: #ffffff;
+        font-family: "DINPro", sans-serif;
+    }
+    
+    .event-details-container .event-detail-item {
+        display: flex;
+        flex-direction: column;
+        padding: 10px 15px;
+        border-radius: 8px;
+        box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5);
+    }
+    
+    .event-details-container .event-detail-item strong {
+        font-size: 14px;
+        color: #ff99d5;
+    }
+    
+    .event-details-container .event-detail-item p {
+        margin: 5px 0 0 0;
+        font-size: 16px;
+        color: #ffffff;
+        font-weight: bold;
+    }
+    
+    .event-details-container .event-not-found {
+        text-align: center;
+        font-size: 18px;
+        color: #ff99d5;
+        font-weight: bold;
+        background-color: #1d1d1d;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    </style>
+<div class="event-details-container">
+    {% if event %}
+        <div class="event-detail-item">
+            <strong>Club:</strong>
+            <p>{{ event.club_name }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Match Date:</strong>
+            <p>{{ event.match_date }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Player:</strong>
+            <p>{{ event.player_name }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Match Period:</strong>
+            <p>{{ event.matchperiod }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Event Second:</strong>
+            <p>{{ event.eventsec }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Event Name:</strong>
+            <p>{{ event.eventname }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Action:</strong>
+            <p>{{ event.action }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Modifier:</strong>
+            <p>{{ event.modifier }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>X Begin:</strong>
+            <p>{{ event.x_begin }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Y Begin:</strong>
+            <p>{{ event.y_begin }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>X End:</strong>
+            <p>{{ event.x_end }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Y End:</strong>
+            <p>{{ event.y_end }}</p>
+        </div>
+        <div class="event-detail-item">
+            <strong>Success:</strong>
+            <p>{{ 'Yes' if event.is_success else 'No' }}</p>
+        </div>
+    {% else %}
+        <div class="event-not-found">
+            Event details not found.
+        </div>
+    {% endif %}
+</div>

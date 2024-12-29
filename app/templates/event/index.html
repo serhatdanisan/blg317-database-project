@@ -2,53 +2,508 @@
 
 {% block title %}Events{% endblock %}
 
-{% block header %}Events{% endblock %}
-
 {% block content %}
-<h2>Event List</h2>
-<div>
-    <a href="{{ url_for('event.add_event') }}">Add Event</a>
+<style>
+    table th, table td {
+        padding: 20px 7px;
+    }
+
+    .title-add-container{
+    width: 95%;
+}
+.selected-filters-container {
+    width: 95%;
+}
+
+.filter-container{
+    width: 95%;
+}
+
+    table th {
+        font-size: 14px;
+    }
+
+    .sort-icon i {
+    font-size: 12px;
+    }
+
+    table {
+        width: 95%;
+        font-size: 14px;
+
+    }
+
+</style>
+<div class="table-container">
+    {% if session["role"]%}
+    <div class="title-add-container">
+        <h1>Event List</h1>
+        <div class="add-item">
+            <i class="fa-solid fa-plus"></i>
+            <a href="#"
+                onclick="event.preventDefault(); openPopup('{{ url_for('event.add_event') }}', 'Add Event');">Add
+                Event</a>
+        </div>
+    </div>
+    {%endif%}
+    <div class="filter-container">
+
+        <div class="filter-group" id="club-filter-group"
+            onclick="toggleFilter('club-filter-group', event)">
+            <label>Club</label>
+            <div class="filter-content">
+                <select name="club" id="club-filter">
+                    <option value>All Clubs</option>
+                    {% for club in clubs %}
+                    <option value="{{ club.id }}" data-name="{{ club.name }}"
+                        {% if filters.get('club') == club.id|string %}selected{%
+                        endif %}>
+                        {{ club.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="date-filter-group"
+            onclick="toggleFilter('date-filter-group', event)">
+            <label>Date</label>
+            <div class="filter-content">
+                <label for="date-from">From:</label>
+                <input type="date" id="date-from" name="date_from"
+                    value="{{ filters.get('date_from', '') }}">
+                <label for="date-to">To:</label>
+                <input type="date" id="date-to" name="date_to"
+                    value="{{ filters.get('date_to', '') }}">
+                <button class="apply-filter-btn"
+                    onclick="applyGroupFilters('date-filter-group')">Apply</button>
+            </div>
+        </div>
+
+        <div class="filter-group" id="name-filter-group"
+            onclick="toggleFilter('name-filter-group', event)">
+            <label>Name</label>
+            <div class="filter-content">
+                <input type="text" id="player-name" name="player_name"
+                    placeholder="Player Name"
+                    value="{{ filters.get('player_name', '') }}">
+                <button class="apply-filter-btn"
+                    onclick="applyGroupFilters('name-filter-group')">Apply</button>
+            </div>
+        </div>
+
+        <div class="filter-group" id="time-filter-group"
+            onclick="toggleFilter('time-filter-group', event)">
+            <label>Time</label>
+            <div class="filter-content">
+                <div>
+                    <input type="number" id="event-sec-start"
+                        name="event_sec_start"
+                        value="{{ filters.get('event_sec_start', '') }}">
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <span>Event Second</span>
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <input type="number" id="event-sec-end" name="event_sec_end"
+                        value="{{ filters.get('event_sec_end', '') }}">
+                </div>
+                <button class="apply-filter-btn"
+                    onclick="applyGroupFilters('time-filter-group')">Apply</button>
+
+            </div>
+        </div>
+
+        <div class="filter-group" id="eventname-filter-group"
+            onclick="toggleFilter('eventname-filter-group', event)">
+            <label>Event Name</label>
+            <div class="filter-content">
+                <select name="event_name" id="event-name">
+                    <option value>All</option>
+                    {% for name in event_names %}
+                    <option value="{{ name }}" {% if filters.get('event_name')
+                        == name %}selected{% endif %}>
+                        {{ name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="action-filter-group"
+            onclick="toggleFilter('action-filter-group', event)">
+            <label>Action</label>
+            <div class="filter-content">
+                <select name="action" id="action">
+                    <option value>All</option>
+                    {% for act in actions %}
+                    <option value="{{ act }}" {% if filters.get('action') == act
+                        %}selected{% endif %}>
+                        {{ act }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="modifier-filter-group"
+            onclick="toggleFilter('modifier-filter-group', event)">
+            <label>Modifier</label>
+            <div class="filter-content">
+                <select name="modifier" id="modifier">
+                    <option value>All</option>
+                    {% for mod in modifiers %}
+                    <option value="{{ mod }}" {% if filters.get('modifier') ==
+                        mod %}selected{% endif %}>
+                        {{ mod }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="coordinates-filter-group"
+            onclick="toggleFilter('coordinates-filter-group', event)">
+            <label>Coordinates</label>
+            <div class="filter-content">
+                <div>
+                    <input type="number" id="x-begin-start" name="x_begin_start"
+                        value="{{ filters.get('x_begin_start', '') }}">
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <span>X Begin</span>
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <input type="number" id="x-begin-end" name="x_begin_end"
+                        value="{{ filters.get('x_begin_end', '') }}">
+                </div>
+                <div>
+                    <input type="number" id="y-begin-start" name="y_begin_start"
+                        value="{{ filters.get('y_begin_start', '') }}">
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <span>Y Begin</span>
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <input type="number" id="y-begin-end" name="y_begin_end"
+                        value="{{ filters.get('y_begin_end', '') }}">
+                </div>
+                <div>
+                    <input type="number" id="x-end-start" name="x_end_start"
+                        value="{{ filters.get('x_end_start', '') }}">
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <span>X End</span>
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <input type="number" id="x-end-end" name="x_end_end"
+                        value="{{ filters.get('x_end_end', '') }}">
+                </div>
+                <div>
+                    <input type="number" id="y-end-start" name="y_end_start"
+                        value="{{ filters.get('y_end_start', '') }}">
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <span>Y End</span>
+                    <i class="fa-solid fa-less-than-equal"></i>
+                    <input type="number" id="y-end-end" name="y_end_end"
+                        value="{{ filters.get('y_end_end', '') }}">
+                </div>
+                <button class="apply-filter-btn"
+                    onclick="applyGroupFilters('coordinates-filter-group')">Apply</button>
+            </div>
+        </div>
+
+        <div class="filter-group" id="success-filter-group"
+            onclick="toggleFilter('success-filter-group', event)">
+            <label>Success</label>
+            <div class="filter-content">
+                <select name="is_success" id="is-success">
+                    <option value>All</option>
+                    <option value="1" {% if filters.get('is_success') == "1"
+                        %}selected{% endif %}>Yes</option>
+                    <option value="0" {% if filters.get('is_success') == "0"
+                        %}selected{% endif %}>No</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="selected-filters-container">
+        <div class="selected-filters">
+
+        </div>
+        <button class="clear-filters-btn" onclick="clearAllFilters()">Clear
+            Filters</button>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th data-column="club_name" data-type="text">Club
+                    <span class="sort-icon"
+                        onclick="sortTable('club_name', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="match_date" data-type="date">Date
+                    <span class="sort-icon"
+                        onclick="sortTable('match_date', 'date')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="player_name" data-type="text"
+                    style="width: 10%;">Player
+                    <span class="sort-icon"
+                        onclick="sortTable('player_name', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="matchperiod" data-type="text">H
+                    <span class="sort-icon"
+                        onclick="sortTable('matchperiod', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="eventsec" data-type="number">Sec
+                    <span class="sort-icon"
+                        onclick="sortTable('eventsec', 'number')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="eventname" data-type="text"
+                    style="width: 6%;">Event
+                    <span class="sort-icon"
+                        onclick="sortTable('eventname', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="action" data-type="text"
+                    style="width: 8%;">Action
+                    <span class="sort-icon"
+                        onclick="sortTable('action', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="modifier" data-type="text"
+                    style="width: 8%;">Modifier
+                    <span class="sort-icon"
+                        onclick="sortTable('modifier', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="x_begin" data-type="number">X<sub>0</sub>
+                    <span class="sort-icon"
+                        onclick="sortTable('x_begin', 'number')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="y_begin" data-type="number">Y<sub>0</sub>
+                    <span class="sort-icon"
+                        onclick="sortTable('y_begin', 'number')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="x_end" data-type="number">X<sub>1</sub>
+                    <span class="sort-icon"
+                        onclick="sortTable('x_end', 'number')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="y_end" data-type="number">Y<sub>1</sub>
+                    <span class="sort-icon"
+                        onclick="sortTable('y_end', 'number')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="is_success" data-type="text"
+                    style="width: 7.5%;">Success
+                    <span class="sort-icon"
+                        onclick="sortTable('is_success', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th style="width: 12%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td data-column="club_name">{{ event.club_name }}</td>
+                <td data-column="match_date">{{
+                    event.match_date.strftime('%d/%m/%y %H:%M') }}</td>
+                <td data-column="player_name">{{ event.player_name.split()[0][0]
+                    }}. {{ event.player_name.split()[-1] }}</td>
+                <td data-column="matchperiod">{{ event.matchperiod }}</td>
+                <td data-column="eventsec">{{ event.eventsec | round(2) }}</td>
+                <td data-column="eventname">{{ event.eventname | title }}</td>
+                <td data-column="action">{{ event.action | title }}</td>
+                <td data-column="modifier">{{ event.modifier | title }}</td>
+                <td data-column="x_begin">{{ event.x_begin }}</td>
+                <td data-column="y_begin">{{ event.y_begin }}</td>
+                <td data-column="x_end">{{ event.x_end }}</td>
+                <td data-column="y_end">{{ event.y_end }}</td>
+                <td data-column="is_success">{{ 'Yes' if event.is_success else
+                    'No' }}</td>
+                <td>
+                    <div class="action-links">
+                        <a href="#"
+                        onclick="event.preventDefault(); openPopup('{{ url_for('event.get_event', id=event.id) }}', 'Event Details');">
+                         <i class="fa-solid fa-eye"></i>
+                        </a>
+                        {% if session["role"]%}
+                        <a href="#"
+                            onclick="event.preventDefault(); openPopup('{{ url_for('event.edit_event', id=event.id) }}', 'Edit Event');">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <form method="POST"
+                            action="{{ url_for('event.delete_event', id=event.id) }}"
+                            style="display:inline;">
+                            <button type="submit"
+                                onclick="return confirm('Are you sure?');">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                        {%endif%}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-<table>
-    <tr>
-        <th>Club</th>
-        <th>Match</th>
-        <th>Player</th>
-        <th>Match Period</th>
-        <th>Event Second</th>
-        <th>Event Name</th>
-        <th>Action</th>
-        <th>Modifier</th>
-        <th>X Begin</th>
-        <th>Y Begin</th>
-        <th>X End</th>
-        <th>Y End</th>
-        <th>Success</th>
-        <th>Actions</th>
-    </tr>
-    {% for event in events %}
-    <tr>
-        <td>{{ event.club_name }}</td>
-        <td>{{ event.match_date }}</td>
-        <td>{{ event.player_name }}</td>
-        <td>{{ event.matchperiod }}</td>
-        <td>{{ event.eventsec }}</td>
-        <td>{{ event.eventname }}</td>
-        <td>{{ event.action }}</td>
-        <td>{{ event.modifier }}</td>
-        <td>{{ event.x_begin }}</td>
-        <td>{{ event.y_begin }}</td>
-        <td>{{ event.x_end }}</td>
-        <td>{{ event.y_end }}</td>
-        <td>{{ 'Yes' if event.is_success else 'No' }}</td>
-        <td>
-            <a href="{{ url_for('event.get_event', id=event.id) }}">View</a> |
-            <a href="{{ url_for('event.edit_event', id=event.id) }}">Edit</a> |
-            <form method="POST" action="{{ url_for('event.delete_event', id=event.id) }}" style="display:inline;">
-                <button type="submit" onclick="return confirm('Are you sure?');">Delete</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+
+<script>
+    function updateSelectedFilters() {
+    const selectedFiltersContainer = document.querySelector('.selected-filters');
+    selectedFiltersContainer.innerHTML = ''; 
+
+    const clubFilter = document.getElementById('club-filter');
+    if (clubFilter && clubFilter.value) {
+        const selectedOption = clubFilter.options[clubFilter.selectedIndex];
+        const selectedClubName = selectedOption ? selectedOption.textContent : 'Unknown Club';
+        if (selectedClubName && selectedClubName !== 'All Clubs') {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `Club: ${selectedClubName} 
+                <button onclick="removeFilter('club-filter')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+    }
+
+    const dateFrom = document.getElementById('date-from').value;
+    const dateTo = document.getElementById('date-to').value;
+    if (dateFrom || dateTo) {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        if (dateFrom && dateTo) {
+            tag.innerHTML = `Date: ${dateFrom} - ${dateTo} 
+                <button onclick="removeFilter('date-filter-group')">&times;</button>`;
+        } else if (dateFrom) {
+            tag.innerHTML = `From Date: ${dateFrom} 
+                <button onclick="removeFilter('date-filter-group')">&times;</button>`;
+        } else {
+            tag.innerHTML = `To Date: ${dateTo} 
+                <button onclick="removeFilter('date-filter-group')">&times;</button>`;
+        }
+        selectedFiltersContainer.appendChild(tag);
+    }
+
+    const eventSecStart = document.getElementById('event-sec-start').value;
+    const eventSecEnd = document.getElementById('event-sec-end').value;
+    if (eventSecStart || eventSecEnd) {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        if (eventSecStart && eventSecEnd) {
+            tag.innerHTML = `Second: ${eventSecStart} - ${eventSecEnd} 
+                <button onclick="removeFilter('time-filter-group')">&times;</button>`;
+        } else if (eventSecStart) {
+            tag.innerHTML = `Second > ${eventSecStart} 
+                <button onclick="removeFilter('time-filter-group')">&times;</button>`;
+        } else {
+            tag.innerHTML = `Second < ${eventSecEnd} 
+                <button onclick="removeFilter('time-filter-group')">&times;</button>`;
+        }
+        selectedFiltersContainer.appendChild(tag);
+    }
+
+    const coordinateFields = [
+        { start: 'x-begin-start', end: 'x-begin-end', label: 'X Begin' },
+        { start: 'y-begin-start', end: 'y-begin-end', label: 'Y Begin' },
+        { start: 'x-end-start', end: 'x-end-end', label: 'X End' },
+        { start: 'y-end-start', end: 'y-end-end', label: 'Y End' },
+    ];
+
+    coordinateFields.forEach(field => {
+        const startValue = document.getElementById(field.start).value;
+        const endValue = document.getElementById(field.end).value;
+
+        if (startValue || endValue) {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+
+            const filterId = `coordinates-${field.label.toLowerCase().replace(' ', '-')}`;
+            if (startValue && endValue) {
+                tag.innerHTML = `${field.label}: ${startValue} - ${endValue} 
+                    <button onclick="removeFilter('${filterId}')">&times;</button>`;
+            } else if (startValue) {
+                tag.innerHTML = `${field.label} > ${startValue} 
+                    <button onclick="removeFilter('${filterId}')">&times;</button>`;
+            } else {
+                tag.innerHTML = `${field.label} < ${endValue} 
+                    <button onclick="removeFilter('${filterId}')">&times;</button>`;
+            }
+            selectedFiltersContainer.appendChild(tag);
+        }
+    });
+
+    const filters = [
+        { id: 'player-name', label: 'Player Name' },
+        { id: 'event-name', label: 'Event Name' },
+        { id: 'action', label: 'Action' },
+        { id: 'modifier', label: 'Modifier' },
+        { id: 'is-success', label: 'Success' },
+    ];
+
+    filters.forEach(filter => {
+        const element = document.getElementById(filter.id);
+        if (element && element.value && element.value !== 'All') {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `${filter.label}: ${element.value} 
+                <button onclick="removeFilter('${filter.id}')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+    });
+}
+
+function removeFilter(filterId) {
+    if (filterId.startsWith('date-filter')) {
+
+        const dateFrom = document.getElementById('date-from');
+        const dateTo = document.getElementById('date-to');
+        if (dateFrom) dateFrom.value = '';
+        if (dateTo) dateTo.value = '';
+    } else if (filterId.startsWith('coordinates-')) {
+
+        const coordinateType = filterId.replace('coordinates-', '').split('-'); 
+        const startInput = document.getElementById(`${coordinateType[0]}-${coordinateType[1]}-start`);
+        const endInput = document.getElementById(`${coordinateType[0]}-${coordinateType[1]}-end`);
+
+        console.log('Inputs found:', startInput, endInput);
+
+        if (startInput) startInput.value = ''; 
+        if (endInput) endInput.value = ''; 
+    }else if (filterId.startsWith('time-filter')) {
+
+        const eventSecStart = document.getElementById('event-sec-start');
+        const eventSecEnd = document.getElementById('event-sec-end');
+        if (eventSecStart) eventSecStart.value = ''; 
+        if (eventSecEnd) eventSecEnd.value = ''; 
+    } else {
+
+        const element = document.getElementById(filterId);
+        if (element) {
+            if (element.tagName === 'SELECT') {
+                element.value = ''; 
+            } else if (element.tagName === 'INPUT') {
+                element.value = ''; 
+            }
+        }
+    }
+
+        updateSelectedFilters();
+        applyFilters();
+}
+
+</script>
 {% endblock %}
