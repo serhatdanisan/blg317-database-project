@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}FootDATA{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='home_style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="content-header" id="lm-header">LATEST MATCHES</div>
+<div class="latest-matches">
+    {% if matches %}
+        {% for match in matches %}
+            <div class="match-content" id="match-{{ match.id }}">
+                <div class="home-team-info"><a href="{{ url_for('club.get_club', id=match.home_club_id) }}">
+                    <span class="home-name">{{ match.home_club }}</span>
+                    <img class="home-team-logo"
+                src="{{ url_for('static', filename='images/Clubs/' + match.home_club_id|string + '.png') }}">
+                </a>
+            </div>
+                <a href="{{ url_for('home.get_match', id=match.id) }}">
+                    <div class="score-container">
+                        <div class="leaguename">{{ match.competition }}</div>
+                        <div class="score">
+                            <span class="home-score">{{ match.goal_by_home_club }}</span>:
+                            <span class="away-score">{{ match.goal_by_away_club }}</span>
+                        </div>
+                        <div class="match-date">{{ match.dateutc.strftime("%d %b %Y") }}</div>
+                    </div>
+                </a>
+
+                <div class="away-team-info"><a href="{{ url_for('club.get_club', id=match.away_club_id) }}">
+                    <img class="away-team-logo"
+                src="{{ url_for('static', filename='images/Clubs/' + match.away_club_id|string + '.png') }}">
+                    <span class="away-name">{{ match.away_club }}</span>
+
+                </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-matches">No matches found.</div>
+    {% endif %}
+    <script src="static/js/animation.js"></script>
+</div>
+{% endblock %}
