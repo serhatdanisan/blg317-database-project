@@ -63,6 +63,15 @@ CREATE TABLE IF NOT EXISTS "football_match_event" (
     "is_success" BOOLEAN
 );
 
+CREATE TABLE IF NOT EXISTS "users" (
+    "user_id" SERIAL PRIMARY KEY,
+    "username" VARCHAR,
+    "psw" VARCHAR,
+    "email" VARCHAR(255) UNIQUE,
+    "user_role" INT DEFAULT 0
+);
+
+
 CREATE INDEX idx_country_name ON countries(country);
 CREATE INDEX idx_stadium_country_id ON stadiums(country_id);
 CREATE INDEX idx_club_stadiums_id ON club(stadiums_id);
