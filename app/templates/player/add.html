@@ -1,11 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}Add Player{% endblock %}
-
-{% block header %}Add Player{% endblock %}
-
-{% block content %}
-<form method="POST">
+<form method="POST" action="{{ url_for('player.add_player') }}" id="add-player-form">
     <label>First Name:</label>
     <input type="text" name="firstname" required>
     <label>Last Name:</label>
@@ -31,4 +24,3 @@
     <input type="number" name="height" min="0">
     <button type="submit">Add Player</button>
 </form>
-{% endblock %}
