@@ -2,15 +2,190 @@
 
 {% block title %}Club Details{% endblock %}
 
-{% block header %}Club Details{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet"
+    href="{{ url_for('static', filename='club_style.css') }}">
+{% endblock %}
 
 {% block content %}
 {% if club %}
-    <h2>{{ club.name }}</h2>
-    <p><strong>Official Name:</strong> {{ club.officialname }}</p>
-    <p><strong>Country:</strong> {{ club.country }}</p>
-    <p><strong>Stadium:</strong> {{ club.stadium }}</p>
+<div>
+    <div class="club-container">
+
+        <div class="club-logo">
+            <img
+                src="{{ url_for('static', filename='images/Clubs/' + club.id|string + '.png') }}">
+        </div>
+
+        <div class="club-basic">
+            <div class="club-name">{{ club.name }}</div>
+            <div class="club-officialname">{{ club.officialname }}</div>
+            <div class="club-country">
+                <img
+                    src="{{ url_for('static', filename='images/Flags/' + club.country_id|string + '.png') }}"
+                    class="nationality-flag">
+                <span>{{ club.league }}</span>
+            </div>
+        </div>
+
+        <div class="club-info">
+            <div class="stadium-info"><strong>Stadium:</strong>
+                <a href="{{ url_for('stadium.get_stadium', id=club.sid) }}">{{
+                    club.stadium }}</a>
+            </div>
+            <div class="city-info"><strong>City:</strong>{{ club.city }}</div>
+        </div>
+    </div>
+
+    <div class="club-stats-container">
+        <div class="stat-item">
+            <span class="stat-value" id="match-count"
+                data-target="{{match_count}}"></span>
+            <span class="stat-label">Matches</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="win"
+                data-target="{{win_count}}"></span>
+            <span class="stat-label">Wins</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="lose"
+                data-target="{{ loss_count}}"></span>
+            <span class="stat-label">Losses</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="goal-scored"
+                data-target="{{ goal_scored }}"></span>
+            <span class="stat-label">Goals Scored</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="goal-conceded"
+                data-target="{{ goal_conceded}}"></span>
+            <span class="stat-label">Goals Conceded</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="clean-sheet"
+                data-target="{{ cln_sheet }}"></span>
+            <span class="stat-label">Clean Sheets</span>
+        </div>
+    </div>
+
+    <div class="players-row">
+        <div class="players-container" id="goals-container">
+            <div class="card-header" id="top-scorers">TOP SCORERS</div>
+            {% for player in top_scorers %}
+            <div class="player-card">
+                <a href="{{ url_for('player.get_player', id=player[0]) }}">
+                    <div class="player-image-container">
+                        <div class="player-image">
+                            <img src="{{ scorer_player_images[player[0]] }}">
+                        </div>
+                        <div class="player-country">
+                            <img
+                                src="{{ url_for('static', filename='images/Flags/' + player[3]|string + '.png') }}">
+                        </div>
+                    </div>
+                    <div class="player-info">
+                        <span class="player-name">{{ player[1] }}</span>
+                    </div>
+                </a>
+                <div class="player-goals">
+                    <span>{{ player[2] }}</span>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="players-container" id="assist-container">
+            <div class="card-header" id="top-assist">MOST ASSISTS</div>
+            {% for player in top_assists %}
+            <div class="player-card">
+                <a href="{{ url_for('player.get_player', id=player[0]) }}">
+                    <div class="player-image-container">
+                        <div class="player-image">
+                            <img src="{{ assist_player_images[player[0]] }}">
+                        </div>
+                        <div class="player-country">
+                            <img
+                                src="{{ url_for('static', filename='images/Flags/' + player[3]|string + '.png') }}">
+                        </div>
+                    </div>
+                    <div class="player-info">
+                        <span class="player-name">{{ player[1] }}</span>
+                    </div>
+                </a>
+                <div class="player-goals">
+                    <span>{{ player[2] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="players-container" id="most-goal-contributions">
+            <div class="card-header" id="top-goal-cont">MOST GOAL
+                CONTRIBUTIONS</div>
+            {% for player in top_contributions %}
+            <div class="player-card">
+                <a href="{{ url_for('player.get_player', id=player[0]) }}">
+                    <div class="player-image-container">
+                        <div class="player-image">
+                            <img src="{{ cont_player_images[player[0]] }}">
+                        </div>
+                        <div class="player-country">
+                            <img
+                                src="{{ url_for('static', filename='images/Flags/' + player[3]|string + '.png') }}">
+                        </div>
+                    </div>
+                    <div class="player-info">
+                        <span class="player-name">{{ player[1] }}</span>
+                    </div>
+                </a>
+                <div class="player-goals">
+                    <span>{{ player[2] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="club-matches">
+        <div class="content-header" id="played-matches">PLAYED MATCHES</div>
+
+        <table class="matches-table">
+            <thead class="matches-table-thead">
+                <tr>
+                    <th>date</th>
+                    <th>home</th>
+                    <th>score</th>
+                    <th>away</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in match_history %}
+                <tr class="matches-table-row">
+                    <td class="table-date">{{ match[1].strftime("%d %b %Y")
+                        }}</td>
+                    <td class="table-team"><a
+                            href="{{ url_for('club.get_club', id=match[5]) }}">{{
+                            match[2] }}</a></td>
+                    <td class="table-score"><a
+                            href="{{ url_for('home.get_match', id=match[0]) }}">{{
+                            match[3] }}</a></td>
+                    <td class="table-team"><a
+                            href="{{ url_for('club.get_club', id=match[6]) }}">{{
+                            match[4] }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+    <script src="/static/js/animation.js"></script>
+</div>
+
 {% else %}
-    <p>Club details not found.</p>
+<p>Club details not found.</p>
 {% endif %}
+
 {% endblock %}
