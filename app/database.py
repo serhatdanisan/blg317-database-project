@@ -1,6 +1,7 @@
 import psycopg2
 from os.path import join, dirname, abspath
 from os import environ
+from werkzeug.security import generate_password_hash
 
 class Database:
 
@@ -14,15 +15,14 @@ class Database:
         self.conn = psycopg2.connect(database_url)
         self.cur = self.conn.cursor()
 
+        self.add_default_user()
+
     def refreshDatabaseConnection(self):
         self.cur.close()
         self.conn.close()
-        self.conn = psycopg2.connect(
-                    user = environ.get('POSTGRES_USER'),
-                    host = environ.get('POSTGRES_HOST'),
-                    password = environ.get('POSTGRES_PASSWORD'),
-                    dbname = environ.get('POSTGRES_DB')
-        )
+        database_url = f"postgresql://{environ.get('POSTGRES_USER')}:{environ.get('POSTGRES_PASSWORD')}@db:{environ.get('POSTGRES_PORT', '5432')}/{environ.get('POSTGRES_DB')}"
+        self.conn = psycopg2.connect(database_url)
+        
         self.cur = self.conn.cursor()
 
     def getData(self, queryFile, params):
@@ -53,6 +53,16 @@ class Database:
         finally:
             self.cur.close()
             return data
+        
+    def add_default_user(self):
+        password = generate_password_hash('123')
+        role = 1
+        username = 'admin'
+        email = "akgoz20@itu.edu.tr"
+
+        query = f"INSERT INTO users (username, psw, email, user_role) VALUES ('{username}', '{password}', '{email}', {role})"
+
+        self.executeQuery(query=query, commit=1)
 
 while(True):
     try:
