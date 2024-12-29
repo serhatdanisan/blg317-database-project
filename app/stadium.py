@@ -1,40 +1,97 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from database import db
+from auth import isAdmin
+
+MATCHES_QUERY = '''
+    SELECT
+        fm.id AS matchid,
+        fm.dateutc AS time,
+        hc.name AS home,
+        fm.goal_by_home_club || ':' || fm.goal_by_away_club AS score,
+        ac.name AS away,
+        hc.id AS home_id,
+        ac.id AS away_id,
+        fm.competition AS competition
+    FROM football_match fm
+    JOIN club hc ON hc.id = fm.home_club
+    JOIN club ac ON ac.id = fm.away_club
+    JOIN stadiums s ON s.id = fm.stadiums_id
+    WHERE s.id = %s
+    ORDER BY time DESC
+
+'''
+
 
 stadium_bp = Blueprint('stadium', __name__, template_folder="templates")
 
 @stadium_bp.route('/')
 def get_stadiums():
-    """Fetches and displays a list of all stadiums."""
+    """Fetches and displays a list of all stadiums with optional filters."""
     try:
+        name = request.args.get('name', '').strip()
+        city = request.args.get('city', '').strip()
+        country_id = request.args.get('country', '').strip()
+        capacity_min = request.args.get('capacity_min', '').strip()
+        capacity_max = request.args.get('capacity_max', '').strip()
+
         query = """
         SELECT s.id, s.stadium, s.city, c.country, s.capacity
         FROM stadiums s
         LEFT JOIN countries c ON s.country_id = c.id
-        ORDER BY s.stadium;
+        WHERE 1=1
         """
-        stadiums = db.executeQuery(query)
+        params = []
+
+        if name:
+            query += " AND s.stadium ILIKE %s"
+            params.append(f"%{name}%")
+        if city:
+            query += " AND s.city ILIKE %s"
+            params.append(f"%{city}%")
+        if country_id:
+            query += " AND s.country_id = %s"
+            params.append(country_id)
+        if capacity_min:
+            query += " AND s.capacity >= %s"
+            params.append(capacity_min)
+        if capacity_max:
+            query += " AND s.capacity <= %s"
+            params.append(capacity_max)
+
+        query += " ORDER BY s.stadium;"
+        stadiums = db.executeQuery(query, params)
         stadiums = [
             {
-                "id": stadium[0],
-                "name": stadium[1],
-                "city": stadium[2],
-                "country": stadium[3],
-                "capacity": stadium[4],
+                "id": row[0],
+                "name": row[1],
+                "city": row[2],
+                "country": row[3],
+                "capacity": row[4],
             }
-            for stadium in stadiums
+            for row in stadiums
         ]
+
+        unique_names = [row[0] for row in db.executeQuery("SELECT DISTINCT stadium FROM stadiums ORDER BY stadium;")]
+        unique_cities = [row[0] for row in db.executeQuery("SELECT DISTINCT city FROM stadiums ORDER BY city;")]
+        countries = [{"id": row[0], "name": row[1]} for row in db.executeQuery("SELECT id, country FROM countries ORDER BY country;")]
+
+        return render_template('stadium/index.html', 
+                               stadiums=stadiums, 
+                               unique_names=unique_names, 
+                               unique_cities=unique_cities, 
+                               countries=countries, 
+                               filters=request.args)
     except Exception as e:
-        stadiums = []
         print(f"Error fetching stadiums: {e}")
-    return render_template('stadium/index.html', stadiums=stadiums)
+        return render_template('stadium/index.html', stadiums=[], unique_names=[], unique_cities=[], countries=[], filters={})
+
 
 @stadium_bp.route('/<int:id>')
 def get_stadium(id):
     """Fetches and displays details of a single stadium by ID."""
     try:
         query = """
-        SELECT s.stadium, s.city, c.country, s.capacity, s.confederation
+        SELECT s.stadium, s.city, c.country, s.capacity, s.confederation, c.id, s.id
         FROM stadiums s
         LEFT JOIN countries c ON s.country_id = c.id
         WHERE s.id = %s;
@@ -50,15 +107,24 @@ def get_stadium(id):
             "country": stadium_data[0][2],
             "capacity": stadium_data[0][3],
             "confederation": stadium_data[0][4],
+            "country_id": stadium_data[0][5],
+            "stadium_id": stadium_data[0][6]
         }
+
+
+        match_history = db.executeQuery(MATCHES_QUERY, params=(id,))
+
     except Exception as e:
         stadium = None
         print(f"Error fetching stadium details: {e}")
         return render_template('stadium/details.html', stadium=None, error=str(e))
 
-    return render_template('stadium/details.html', stadium=stadium, error=None)
+    return render_template('stadium/details.html', stadium=stadium,
+                                                    match_history=match_history,
+                                                      error=None)
 
 @stadium_bp.route('/add', methods=['GET', 'POST'])
+@isAdmin
 def add_stadium():
     """Adds a new stadium."""
     if request.method == 'POST':
@@ -83,6 +149,7 @@ def add_stadium():
     return render_template('stadium/add.html', countries=countries)
 
 @stadium_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+@isAdmin
 def edit_stadium(id):
     """Edits an existing stadium."""
     if request.method == 'POST':
@@ -130,6 +197,7 @@ def edit_stadium(id):
 
 
 @stadium_bp.route('/delete/<int:id>', methods=['POST'])
+@isAdmin
 def delete_stadium(id):
     """Deletes a stadium."""
     try:
