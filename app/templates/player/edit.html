@@ -1,11 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}Edit Player{% endblock %}
-
-{% block header %}Edit Player{% endblock %}
-
-{% block content %}
-<form method="POST">
+<form method="POST" action="{{ url_for('player.edit_player', id=player.id) }}" id="edit-player-form">
     <label>First Name:</label>
     <input type="text" name="firstname" value="{{ player.firstname }}" required>
     <label>Last Name:</label>
@@ -33,4 +26,3 @@
     <input type="number" name="height" value="{{ player.height }}" min="0">
     <button type="submit">Save Changes</button>
 </form>
-{% endblock %}
