@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, flash, redirect, url_for
 from collections import defaultdict
-from math import ceil
+from math import ceil, sqrt
 import csv
 from database import db
+import json
 from match import get_matches
 
 GET_MATCH_INFO_QUERY = """
@@ -276,7 +277,7 @@ WHERE
     fme.modifier IN ('red_card', 'second_yellow_card', 'yellow_card')
 """
 
-GET_SHOTS_QUERY = """
+GET_EVENTS_BASE_QUERY = '''
 SELECT 
   e.id, 
   e.club_id, 
@@ -289,26 +290,58 @@ SELECT
   e.modifier, 
   e.x_begin, 
   e.y_begin, 
+  e.x_end, 
+  e.y_end, 
   e.is_success,
 CASE WHEN e.club_id = fm.home_club THEN TRUE ELSE FALSE END AS is_home_team
 FROM football_match_event e
 LEFT JOIN football_match fm ON e.football_match_id = fm.id
 LEFT JOIN player p ON p.id = e.player_id
 WHERE 
-  e.football_match_id = %s
+  e.football_match_id = %s 
+'''
+
+GET_SHOTS_QUERY = """
   AND (eventname = 'Shot' 
   OR action = 'Free kick shot' 
   OR action = 'Penalty')
-ORDER BY 
-  matchperiod, 
-  eventsec
 """
+
+GET_PASSES_QUERY = """
+  AND eventname = 'Pass'
+"""
+
+GET_INTERCEPTIONS_QUERY = '''
+  AND action= 'Touch' AND modifier = 'interception'
+'''
+
+GET_OFFSIDES_QUERY = '''
+  AND eventname = 'Offside'
+'''
+
+GET_DUELS_QUERY= '''
+    AND eventname = 'Duel' AND modifier= 'won'
+'''
+
+GET_FOULS_QUERY= '''
+    AND eventname = 'Foul'
+'''
+
+GET_FREEKICKS_QUERY= '''
+    AND eventname = 'Free Kick' AND (action = 'Free Kick' OR action = 'Free kick shot' OR action = 'Free kick cross')
+'''
+
+GET_SAVES_QUERY= '''
+    AND eventname='Save attempt' and is_success= true and (x_end !=0 and y_end != 0)
+'''
+
+
 
 match_details_bp = Blueprint('match_details', __name__, template_folder="templates")
 
 
-def load_player_images(home_XI, away_XI):
-    all_ids = {p["id"] for p in (home_XI + away_XI)}
+def load_player_images(starters, subs):
+    all_ids = {p["id"] for p in starters} | {p["sub_on_id"] for p in subs if "sub_on_id" in p}
     player_data = {}
     with open('app/static/images/player_images.csv', mode='r') as file:
         for row in csv.DictReader(file):
@@ -316,6 +349,9 @@ def load_player_images(home_XI, away_XI):
             if dset_id in all_ids:
                 player_data[dset_id] = row['link']
     return player_data
+
+def calculate_distance(x1, y1, x2, y2):
+    return round(sqrt((x2 - x1)**2 + (y2 - y1)**2), 2)
 
 def normalize_name(name):
     if len(name) > 18:
@@ -394,6 +430,7 @@ def get_key_events(home_goals, home_subs, home_cards, away_goals, away_subs, awa
             details_down += "Penalty"
         is_home = (goal in home_goals) & (goal["is_own_goal"] != True)
         key_events.append({
+            "player_id": goal["player_id"],
             "icon": icon,
             "details_up": details_up,
             "details_down": details_down,
@@ -405,6 +442,7 @@ def get_key_events(home_goals, home_subs, home_cards, away_goals, away_subs, awa
     for sub in (home_subs + away_subs):
         is_home = sub in home_subs
         key_events.append({
+            "player_id": sub["sub_on_id"],
             "icon": "sub",
             "details_up": normalize_name(sub["sub_on_name"]),
             "details_down": normalize_name(sub["sub_off_name"]),
@@ -418,6 +456,7 @@ def get_key_events(home_goals, home_subs, home_cards, away_goals, away_subs, awa
         details_up = normalize_name(name_concat)
         is_home = card in home_cards
         key_events.append({
+            "player_id": card["player_id"],
             "icon": card["modifier"],
             "details_up": details_up,
             "details_down": card["action"],
@@ -460,31 +499,78 @@ def get_goals(match_id, is_home):
         })
     return goals
 
+
+def merge_players(xi, subs):
+    merged_players = []
+    
+    for player in xi:
+        merged_players.append({'id': player['id'], 'name': normalize_name(player['name']) })
+    
+    for player in subs:
+        merged_players.append({'id': player['sub_on_id'], 'name': normalize_name(player['sub_on_name'])})
+    
+    return merged_players
+
+def get_shot_end_coordinate(modifier, is_home):
+    end_x_coordinate =(
+        0 if is_home else
+        105
+    )
+
+    end_y_coordinate = (
+        39.5 if (modifier in ["otl", "ol", "olb"]) & is_home else
+        28.5 if (modifier in ["otr", "or", "obr"]) & is_home else
+        35.83 if (modifier in ["gtl", "gl", "glb"]) & is_home else
+        34 if (modifier in ["ot", "gt", "gc", "gb", "pt"]) & is_home else
+        32.17 if (modifier in ["gtr", "gr", "gbr"]) & is_home else
+        30.34 if (modifier in ["pbr", "pr", "ptr"]) & is_home else
+        37.66 if (modifier in ["plb", "pl", "ptl"]) & is_home else
+            
+        (68-39.5) if modifier in ["otl", "ol", "olb"] else
+        (68-29.5) if modifier in ["otr", "or", "obr"] else
+        (68-35.83) if modifier in ["gtl", "gl", "glb"] else
+        (68-34) if modifier in ["ot", "gt", "gc", "gb", "pt"] else
+        (68-32.17) if modifier in ["gtr", "gr", "gbr"] else
+        (68-30.34) if modifier in ["pbr", "pr", "ptr"] else
+        (68-37.66) if modifier in ["plb", "pl", "ptl"] else
+        -1
+    )
+
+    return end_x_coordinate, end_y_coordinate
+
 def convert_coordinates(x_begin, y_begin, is_home):
     field_length, field_width = 105, 68
     new_x = 0
     new_y = 0
     if is_home:
-        new_x = field_length - (x_begin * field_length / 100)
-        new_y = y_begin * field_width / 100
+        new_x = round((field_length - (x_begin * field_length / 100)),2)
+        new_y = round((y_begin * field_width / 100),2)
     else:
-        new_x = x_begin * field_length / 100
-        new_y = field_width - (y_begin * field_width / 100)
+        new_x = round((x_begin * field_length / 100),2)
+        new_y = round((field_width - (y_begin * field_width / 100)),2)
     return new_x, new_y
 
 def get_shots(match_id, goals):
-    query_result = db.executeQuery(GET_SHOTS_QUERY, params=(match_id,))
+    query_result = db.executeQuery(GET_EVENTS_BASE_QUERY + GET_SHOTS_QUERY , params=(match_id,))
     shots = []
 
     for row in query_result:
-        event_id, club_id, player_id, first_name, last_name, matchperiod, eventsec, action, modifier, x_begin, y_begin, is_success, is_home = row
+        event_id, club_id, player_id, first_name, last_name, matchperiod, eventsec, action, modifier, x_begin, y_begin, x_end, y_end, is_success, is_home = row
+
         minute = calculate_minute(matchperiod, eventsec)
         player_name = normalize_name(first_name + " " + last_name)
         x_coordinate, y_coordinate = convert_coordinates(x_begin, y_begin,is_home)
-
         result = ""
         is_goal = any(goal["event_id"] == event_id for goal in goals)
 
+
+        distance = (
+            calculate_distance(x_coordinate, y_coordinate, 0, 34) if is_home else
+            calculate_distance(x_coordinate, y_coordinate, 105, 34) 
+        )
+
+        end_x_coordinate, end_y_coordinate = get_shot_end_coordinate(modifier, is_home)
+        
         result = (
             "Goal" if is_goal else
             "Save" if modifier in ["gb", "gbr", "gc", "gl", "glb", "gr", "gt", "gtl", "gtr"] else
@@ -508,6 +594,7 @@ def get_shots(match_id, goals):
             "player_id": player_id,
             "player_name": player_name,
             "club_id": club_id,
+            "is_home": is_home,
             "period": matchperiod,
             "minute": minute,
             "action": action,
@@ -515,10 +602,74 @@ def get_shots(match_id, goals):
             "x_coordinate": x_coordinate,
             "y_coordinate": y_coordinate,
             "is_success": is_success,
+            "end_x_coordinate": end_x_coordinate,
+            "end_y_coordinate": end_y_coordinate,
+            "distance": distance,
             "result": result,
             "situation": situation
-        })
+                            })
     return shots
+
+def get_events(match_id, event_query, type):
+    query_result = db.executeQuery(GET_EVENTS_BASE_QUERY + event_query, params=(match_id,))
+    passes = []
+
+    for row in query_result:
+        event_id, club_id, player_id, first_name, last_name, matchperiod, eventsec, action, modifier, x_begin, y_begin, x_end, y_end, is_success, is_home = row
+        minute = calculate_minute(matchperiod, eventsec)
+        player_name = normalize_name(first_name + " " + last_name)
+        
+        
+        if not any(c is None for c in [x_begin, y_begin, x_end, y_end]):
+            if(type in ['offside' , 'foul']):
+                x_coordinate, y_coordinate = convert_coordinates(x_begin, y_begin,is_home)
+                end_x_coordinate, end_y_coordinate = -1, -1
+                distance = ""
+            elif(type == 'save'):
+                x_coordinate, y_coordinate = convert_coordinates(x_end, y_end,is_home)
+                end_x_coordinate, end_y_coordinate = -1, -1
+                distance = ""
+            elif(type == 'freekick' and action == 'Free kick shot'):
+                x_coordinate, y_coordinate = convert_coordinates(x_begin, y_begin,is_home)
+                end_x_coordinate, end_y_coordinate = get_shot_end_coordinate(modifier, is_home)
+                distance = (
+                calculate_distance(x_coordinate, y_coordinate, end_x_coordinate, end_y_coordinate))
+            else:
+                x_coordinate, y_coordinate = convert_coordinates(x_begin, y_begin,is_home)
+                end_x_coordinate, end_y_coordinate = convert_coordinates(x_end, y_end,is_home)
+                distance = (
+                calculate_distance(x_coordinate, y_coordinate, end_x_coordinate, end_y_coordinate)
+        )
+        else:
+            x_coordinate = -1
+            y_coordinate = -1
+            end_x_coordinate = -1
+            end_y_coordinate = -1
+            distance = ""
+
+
+
+        passes.append({
+            "event_id": event_id,
+            "player_id": player_id,
+            "player_name": player_name,
+            "club_id": club_id,
+            "is_home": is_home,
+            "period": matchperiod,
+            "minute": minute,
+            "action": action,
+            "modifier": modifier,
+            "x_coordinate": x_coordinate,
+            "y_coordinate": y_coordinate,
+            "is_success": is_success,
+            "end_x_coordinate": end_x_coordinate,
+            "end_y_coordinate": end_y_coordinate,
+            "distance": distance,
+            "result": "",
+            "situation": ""
+        })
+    return passes
+
 
 def calculate_metric_widths(match_id):
     metrics = {
@@ -534,10 +685,10 @@ def calculate_metric_widths(match_id):
     'Throw-ins': {'eventname': 'Free Kick', 'action': 'Throw in', 'modifier': None, 'is_success': None},
     'Yellow Cards': {'eventname': 'Foul', 'action': None, 'modifier': 'yellow_card', 'is_success': None},
     'Red Cards': {'eventname': 'Foul', 'action': None, 'modifier': ['red_card', 'second_yellow_card'], 'is_success': None},
-    'Shots on Target': {'eventname': 'Shot', 'action': None, 'modifier': None, 'is_success': True},
-    'Shots Hit Post': {'eventname': 'Shot', 'action': None, 'modifier': ['pbr', 'pl', 'plb', 'pr', 'pt', 'ptl', 'ptr'], 'is_success': None},
-    'Missed Shots': {'eventname': 'Shot', 'action': None, 'modifier': ['obr', 'ol', 'olb', 'opportunity', 'or', 'ot', 'otl', 'otr'], 'is_success': None},
-    'Blocked Shots': {'eventname': 'Shot', 'action': None, 'modifier': ['blocked', 'interception'], 'is_success': None},
+    'Shots on Target': {'eventname': None, 'action': ['Shot', 'Free kick shot', 'Penalty'], 'modifier': None, 'is_success': True},
+    'Shots Hit Post': {'eventname': None, 'action': ['Shot', 'Free kick shot', 'Penalty'], 'modifier': ['pbr', 'pl', 'plb', 'pr', 'pt', 'ptl', 'ptr'], 'is_success': None},
+    'Missed Shots': {'eventname': None, 'action': ['Shot', 'Free kick shot', 'Penalty'], 'modifier': ['obr', 'ol', 'olb', 'opportunity', 'or', 'ot', 'otl', 'otr'], 'is_success': None},
+    'Blocked Shots': {'eventname': None, 'action': ['Shot', 'Free kick shot', 'Penalty'], 'modifier': ['blocked', 'interception'], 'is_success': None},
     'Accurate Long Passes': {'eventname': 'Pass', 'action': 'High pass', 'modifier': None, 'is_success': True},
     'Accurate Crosses': {'eventname': 'Pass', 'action': 'Cross', 'modifier': None, 'is_success': True},
     'Key Passes': {'eventname': 'Pass', 'action': 'Smart pass', 'modifier': None, 'is_success': None},
@@ -721,12 +872,13 @@ def match_details(id):
     away_last_5 = get_last_5_matches(id,1)
     home_XI = get_starting_XI(id,0)
     away_XI = get_starting_XI(id,1)
-    player_images = load_player_images(home_XI, away_XI)
+    home_subs = get_substitutions(id, 0)
+    away_subs = get_substitutions(id, 1)
+    home_players = merge_players(home_XI, home_subs)
+    away_players = merge_players(away_XI, away_subs)
 
     home_goals = get_goals(id,0)
     away_goals = get_goals(id,1)
-    home_subs = get_substitutions(id, 0)
-    away_subs = get_substitutions(id, 1)
     home_cards = get_cards(id, 0)
     away_cards = get_cards(id, 1)
 
@@ -734,7 +886,18 @@ def match_details(id):
 
     ht_ft = get_ht_ft(home_goals, away_goals)
 
+
     shots = get_shots(id, (home_goals + away_goals))
+    passes = get_events(id, GET_PASSES_QUERY, 'pass')
+    interceptions = get_events(id, GET_INTERCEPTIONS_QUERY, 'interception')
+    offsides = get_events(id, GET_OFFSIDES_QUERY, 'offside')
+    duels = get_events(id, GET_DUELS_QUERY, 'duel')
+    fouls = get_events(id, GET_FOULS_QUERY, 'foul')
+    freekicks = get_events(id, GET_FREEKICKS_QUERY, 'freekick')
+    saves = get_events(id, GET_SAVES_QUERY, 'save')
+
+    player_images = load_player_images((home_XI + away_XI), (home_subs + away_subs))
+
     return render_template('stats/match_stats.html',
                            match=match_info,
                            summary_widths=summary_widths,
@@ -748,6 +911,16 @@ def match_details(id):
                            away_last_5=away_last_5,
                            home_XI=home_XI,
                            away_XI=away_XI,
+                           home_players= home_players,
+                           away_players= away_players,
                            player_images=player_images,
                            key_events=key_events,
-                           shots= shots )
+                           shots= shots,
+                           passes=passes,
+                           interceptions=interceptions,
+                           offsides=offsides,
+                           duels=duels,
+                           fouls=fouls,
+                           freekicks=freekicks,
+                           saves=saves
+                           )
