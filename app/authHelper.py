@@ -1,100 +1,41 @@
-from flask import request, render_template, Blueprint, redirect, url_for, session, flash
-from authHelper import getUser, registerUser, deleteUser
-from werkzeug.security import generate_password_hash, check_password_hash
-import functools
+from database import db
+from psycopg2 import IntegrityError
 
-def isAdmin(view):
-    @functools.wraps(view)
-    def wrappedView(**kwargs):
-        if session.get('role') is not None:
-            if session['role']==1:
-                pass
-            else:
-                return 'You are not authorized for admin role!'
-        else:
-            return 'You are not logged in!'
-        return view(**kwargs)
 
-    return wrappedView
+def getUser(username):
+    db.refreshDatabaseConnection()
+    query = f"SELECT * FROM users WHERE username='{username}'"
+    user = db.executeQuery(query)
 
-def loginRequired(view):
-    @functools.wraps(view)
-    def wrappedView(**kwargs):
-        if session.get('user_id') is None:
-            return redirect(url_for('auth.login'))
+    if len(user) == 0:
+        return None
+    else: return user[0]
 
-        return view(**kwargs)
-
-    return wrappedView
-
-auth_bp = Blueprint('auth', __name__)
-
-@auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
+def registerUser(username, password, email, role):
     error = None
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password') # do not change!!
-        user = getUser(username)
-        if user is None:
-            error = 'Incorrect username.'
+    try:
+        if db.cur is None or db.cur.closed: db.cur = db.conn.cursor()
+        db.cur.execute(
+            "INSERT INTO users (username, psw, email, user_role) VALUES (%s, %s, %s, %s)",
+            (username, password, email, role),
+        )
+        db.conn.commit()
+    except IntegrityError:
+        error = f"User {username} is already registered."
 
-        elif not check_password_hash(user[2], password):
-            error = 'Incorrect password.'
-        else:
-            session.clear()
-            session['user_id'] = user[0]
-            session['username'] = user[1]
-            session['email'] = user[3]
-            session['role'] = user[4]
-            return redirect(url_for('home'))
-            
-    return render_template('account/login.html', error=error)
+    return error
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
-def register():
+def deleteUser(id):
     error = None
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password') # do not change!
-        email = request.form.get('email')
-        pswHash = generate_password_hash(password)
-        error = registerUser(username, pswHash, email, role=0) 
-        if error is None:
-            return redirect(url_for('auth.login'))
-    
-    return render_template('account/register.html', error=error)
+    try:
+        if db.cur is None or db.cur.closed: db.cur = db.conn.cursor()
+        db.cur.execute(
+            "DELETE FROM users WHERE user_id = %s ",
+            (str(id),)
+        )
+        db.conn.commit()
+    except IntegrityError:
+        error = f"User {id} does not exist."
 
-@auth_bp.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('home'))
+    return error
 
-
-@auth_bp.route('/user', methods=['GET', 'POST'])
-@loginRequired
-def user():
-    error = None
-    if request.method == 'POST':
-        # Delete user
-        if request.form.get('username') is None:
-            error = deleteUser(session['user_id'])
-            if error is None:
-                session.clear()
-                return render_template('base.html')
-        # Update
-        else:
-            error = updateUser({
-                'username': request.form.get('username'),
-                'email': request.form.get('email'),
-                'user_id': session['user_id']
-                })
-            
-            if error is None:
-                user = getUser(request.form.get('username'))
-                session['user_id'] = user[0]
-                session['username'] = user[1]
-                session['role'] = user[4] # True is for admin False is for user
-
-        
-    return render_template('account/user.html', error=error)
