@@ -5,22 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FootDATA{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='base_style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='foot.ico') }}">
     {% block stylesheets %}
     {% endblock %}
 </head>
-<body>
     <header>
-        <nav class="navbar">
-            <div class="navbar-brand">{% block header %}<a href="{{ url_for('home.get_matches') }}">FootDATA</a>{% endblock %}</div>
-            <ul class="navbar-links">
-                <li><a href="{{ url_for('player.get_players') }}">Players</a></li>
-                <li><a href="{{ url_for('stadium.get_stadiums') }}">Stadiums</a></li>
-                <li><a href="{{ url_for('country.get_countries') }}">Countries</a></li>
-                <li><a href="{{ url_for('club.get_clubs') }}">Clubs</a></li>
-                <li><a href="{{ url_for('match.get_matches') }}">Matches</a></li>
-            </ul>
-        </nav>
+        {% include "navbar.html" %}
     </header>
     
     <body>
@@ -30,5 +21,196 @@
     <footer>
         <p>FootDATA © 2024</p>
     </footer>
+
+    <div id="dynamic-popup" class="popup-container">
+        <div class="popup-header">
+            <h2 id="popup-title">Popup Title</h2>
+            <button class="close-btn" onclick="closePopup()">
+                <i class="fa-solid fa-square-xmark"></i>
+            </button>
+        </div>
+        <div class="popup-body" id="popup-body">
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/table_sort.js') }}"></script>
+    <script>
+
+function openPopup(url, title) {
+    const popup = document.getElementById('dynamic-popup');
+    const popupBody = document.getElementById('popup-body');
+    const popupTitle = document.getElementById('popup-title');
+
+    popupTitle.innerText = title;
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            popupBody.innerHTML = html;
+            popup.classList.add('visible'); 
+            popup.style.visibility = 'visible';
+            popup.style.transform = 'translateX(0)';
+        })
+        .catch(error => {
+            alert('Popup içeriği yüklenemedi.');
+        });
+}
+
+function closePopup() {
+    const popup = document.getElementById('dynamic-popup');
+
+    popup.classList.add('closing');
+
+    popup.classList.remove('visible', 'closing'); 
+    popup.style.visibility = 'hidden'; 
+    popup.style.transform = 'translateX(100%)'; 
+    document.getElementById('popup-body').innerHTML = ''; 
+
+}
+
+    </script>
+
+    <script>
+function toggleFilter(groupId, event) {
+
+    if (event.target.closest('.filter-content')) {
+        return;
+    }
+
+    const allGroups = document.querySelectorAll('.filter-group');
+    allGroups.forEach(group => {
+        if (group.id !== groupId) {
+            group.classList.remove('open'); 
+        }
+    });
+
+    const group = document.getElementById(groupId);
+    group.classList.toggle('open');
+}
+    </script>
+
+<script>
+function applyFilters() {
+
+    const filters = {};
+
+    const filterElements = document.querySelectorAll('.filter-content input, .filter-content select');
+
+    filterElements.forEach(element => {
+        const value = element.value.trim();
+        if (value !== '' && value !== 'All' && value !== 'None') {
+            filters[element.name] = value; 
+        }
+    });
+
+    const queryString = Object.keys(filters)
+        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(filters[key]))
+        .join('&');
+
+    const baseUrl = window.location.pathname; 
+    const newUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+
+    window.location.href = newUrl;
+}
+
+function handleFilterInput(input) {
+    input.addEventListener('keyup', function (event) {
+        if (event.key === 'Enter') {
+            applyFilters(); 
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('.filter-content input[type="text"], .filter-content input[type="number"]');
+    inputs.forEach(input => handleFilterInput(input));
+
+    const selects = document.querySelectorAll('.filter-content select');
+    selects.forEach(select => {
+        select.addEventListener('change', applyFilters); 
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateSelectedFilters();
+    updateClearFiltersVisibility();
+});
+
+</script>
+
+<script>
+    function applyGroupFilters(groupId) {
+    const group = document.getElementById(groupId);
+    const inputs = group.querySelectorAll('.filter-content input, .filter-content select');
+    const currentFilters = new URLSearchParams(window.location.search); 
+
+    inputs.forEach(input => {
+        if (input.value.trim() !== '') {
+            currentFilters.set(input.name, input.value.trim()); 
+        } else {
+            currentFilters.delete(input.name); 
+        }
+    });
+
+    const newUrl = `${window.location.pathname}?${currentFilters.toString()}`;
+    window.location.href = newUrl; 
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const selects = document.querySelectorAll('.filter-content select');
+    const inputs = document.querySelectorAll('.filter-content input[type="number"], .filter-content input[type="text"]');
+
+    selects.forEach(select => {
+        select.addEventListener('change', function () {
+            const group = select.closest('.filter-group');
+            if (group) applyGroupFilters(group.id);
+        });
+    });
+
+    inputs.forEach(input => {
+        const group = input.closest('.filter-group');
+        const applyButton = group.querySelector('.apply-filter-btn');
+        if (applyButton) {
+            applyButton.addEventListener('click', () => applyGroupFilters(group.id));
+        }
+    });
+});
+</script>
+
+<script>
+    function clearAllFilters() {
+
+    const filterElements = document.querySelectorAll('.filter-content input, .filter-content select');
+
+    filterElements.forEach(element => {
+        if (element.type === 'checkbox' || element.type === 'radio') {
+            element.checked = false; 
+        } else {
+            element.value = ''; 
+        }
+    });
+
+    const baseUrl = window.location.pathname; 
+    window.location.href = baseUrl; 
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const clearFiltersBtn = document.querySelector('.clear-filters-btn');
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', clearAllFilters);
+    }
+});
+
+function updateClearFiltersVisibility() {
+    const clearFiltersBtn = document.querySelector('.clear-filters-btn');
+    const selectedFiltersContainer = document.querySelector('.selected-filters');
+
+    if (selectedFiltersContainer.children.length > 0) {
+        clearFiltersBtn.style.display = 'inline-block'; 
+    } else {
+        clearFiltersBtn.style.display = 'none'; 
+    }
+}
+</script>
+
 </body>
 </html>
