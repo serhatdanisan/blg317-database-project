@@ -1,11 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}Add Match{% endblock %}
-
-{% block header %}Add Match{% endblock %}
-
-{% block content %}
-<form method="POST">
+<form method="POST" action="{{ url_for('match.add_match') }}" id="add-match-form">
     <label>Date (UTC):</label>
     <input type="datetime-local" name="dateutc" required>
     
@@ -55,4 +48,3 @@
     
     <button type="submit">Add Match</button>
 </form>
-{% endblock %}
