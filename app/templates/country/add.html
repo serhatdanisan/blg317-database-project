@@ -1,11 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}Add Country{% endblock %}
-
-{% block header %}Add Country{% endblock %}
-
-{% block content %}
-<form method="POST">
+<form method="POST" action="{{ url_for('country.add_country') }}" id="add-country-form">
     <label>Name:</label>
     <input type="text" name="name" required>
 
@@ -17,4 +10,3 @@
 
     <button type="submit">Add Country</button>
 </form>
-{% endblock %}
