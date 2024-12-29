@@ -1,12 +1,6 @@
-{% extends "base.html" %}
+<form method="POST" action="{{ url_for('stadium.add_stadium') }}"
+    id="add-stadium-form">
 
-{% block title %}Add Stadium{% endblock %}
-
-{% block header %}Add Stadium{% endblock %}
-
-{% block content %}
-<h2>Add a New Stadium</h2>
-<form method="POST">
     <label for="stadium">Stadium Name:</label>
     <input type="text" id="stadium" name="stadium" required><br>
 
@@ -20,7 +14,7 @@
     <input type="text" id="confederation" name="confederation" required><br>
 
     <select name="country_id">
-        <option value="">Select Country</option>
+        <option value>Country</option>
         {% for country in countries %}
         <option value="{{ country[0] }}">{{ country[1] }}</option>
         {% endfor %}
@@ -28,4 +22,3 @@
 
     <button type="submit">Add Stadium</button>
 </form>
-{% endblock %}
