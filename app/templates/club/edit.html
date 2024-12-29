@@ -1,11 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}Edit Club{% endblock %}
-
-{% block header %}Edit Club{% endblock %}
-
-{% block content %}
-<form method="POST">
+<form method="POST" action="{{ url_for('club.edit_club', id=club.id) }}" id="edit-club-form">
     <label>Name:</label>
     <input type="text" name="name" value="{{ club.name }}" required>
 
@@ -34,4 +27,3 @@
 
     <button type="submit">Save Changes</button>
 </form>
-{% endblock %}
