@@ -2,43 +2,294 @@
 
 {% block title %}Matches{% endblock %}
 
-{% block header %}Matches{% endblock %}
-
 {% block content %}
-<h2>Matches</h2>
-<div>
-    <a href="{{ url_for('match.add_match') }}" class="button">Add New Match</a>
+<div class="table-container">
+    {% if session["role"]%}
+        <div class="title-add-container">
+            <h1>Match List</h1>
+            <div class="add-item">
+                <i class="fa-solid fa-plus"></i>
+                <a href="#"
+                    onclick="event.preventDefault(); openPopup('{{ url_for('match.add_match') }}', 'Add Match');">Add
+                    Match</a>
+            </div>
+        </div>
+    {%endif%}
+
+    <div class="filter-container">
+
+        <div class="filter-group" id="date-filter-group" onclick="toggleFilter('date-filter-group', event)">
+            <label>Date</label>
+            <div class="filter-content">
+                <label for="date-from">From:</label>
+                <input type="date" id="date-from" name="date_from" value="{{ filters.get('date_from', '') }}">
+                <label for="date-to">To:</label>
+                <input type="date" id="date-to" name="date_to" value="{{ filters.get('date_to', '') }}">
+                <button class="apply-filter-btn" onclick="applyGroupFilters('date-filter-group')">Apply</button>
+            </div>
+        </div>
+
+        <div class="filter-group" id="competition-filter-group" onclick="toggleFilter('competition-filter-group', event)">
+            <label>Competition</label>
+            <div class="filter-content">
+                <select name="competition" id="competition-filter">
+                    <option value="">All Competitions</option>
+                    {% for competition in competitions %}
+                    <option value="{{ competition }}" {% if filters.get('competition') == competition %}selected{% endif %}>
+                        {{ competition }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="season-filter-group" onclick="toggleFilter('season-filter-group', event)">
+            <label>Season</label>
+            <div class="filter-content">
+                <input type="number" id="season-filter" name="season" value="{{ filters.get('season', '') }}" placeholder="Enter Season">
+                <button class="apply-filter-btn" onclick="applyGroupFilters('season-filter-group')">Apply</button>
+            </div>
+        </div>
+
+        <div class="filter-group" id="home-club-filter-group" onclick="toggleFilter('home-club-filter-group', event)">
+            <label>Home Club</label>
+            <div class="filter-content">
+                <select name="home_club" id="home-club-filter">
+                    <option value="">All Clubs</option>
+                    {% for club in clubs %}
+                    <option value="{{ club.id }}" data-name="{{ club.name }}" 
+                            {% if filters.get('home_club') == club.id|string %}selected{% endif %}>
+                        {{ club.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="away-club-filter-group" onclick="toggleFilter('away-club-filter-group', event)">
+            <label>Away Club</label>
+            <div class="filter-content">
+                <select name="away_club" id="away-club-filter">
+                    <option value="">All Clubs</option>
+                    {% for club in clubs %}
+                    <option value="{{ club.id }}" data-name="{{ club.name }}" 
+                            {% if filters.get('away_club') == club.id|string %}selected{% endif %}>
+                        {{ club.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="winner-filter-group" onclick="toggleFilter('winner-filter-group', event)">
+            <label>Winner</label>
+            <div class="filter-content">
+                <select name="winner" id="winner-filter">
+                    <option value="">All Clubs</option>
+                    {% for club in clubs %}
+                    <option value="{{ club.id }}" data-name="{{ club.name }}" 
+                            {% if filters.get('winner') == club.id|string %}selected{% endif %}>
+                        {{ club.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="selected-filters-container">
+        <div class="selected-filters">
+
+        </div>
+        <button class="clear-filters-btn" onclick="clearAllFilters()">Clear Filters</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th data-column="dateutc" data-type="date"
+                    style="width: 14.17%;">Date
+                    <span class="sort-icon"
+                        onclick="sortTable('dateutc', 'date')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="competition" data-type="text"
+                    style="width: 18%;">Competition
+                    <span class="sort-icon"
+                        onclick="sortTable('competition', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="season" data-type="number"
+                    style="width: 12%;">Season
+                    <span class="sort-icon"
+                        onclick="sortTable('season', 'number')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="home_club" data-type="text"
+                    style="width: 14.17%;">Home Club
+                    <span class="sort-icon"
+                        onclick="sortTable('home_club', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="away_club" data-type="text"
+                    style="width: 14.17%;">Away Club
+                    <span class="sort-icon"
+                        onclick="sortTable('away_club', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="winner" data-type="text"
+                    style="width: 14.17%;">Winner
+                    <span class="sort-icon"
+                        onclick="sortTable('winner', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th style="width: 13%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for match in matches %}
+            <tr>
+                <td data-column="dateutc">{{ match.dateutc.strftime("%d %b %Y") }}</td>
+                <td data-column="competition">{{ match.competition | title }}</td>
+                <td data-column="season">{{ match.season }}</td>
+                <td data-column="home_club">{{ match.home_club }}</td>
+                <td data-column="away_club">{{ match.away_club }}</td>
+                <td data-column="winner">{{ match.winner or 'N/A' }}</td>
+                <td>
+                    <div class="action-links">
+                        <a href="{{ url_for('match_details.match_details', id=match.id) }}">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        {% if session["role"]%}
+                            <a href="#"
+                                onclick="event.preventDefault(); openPopup('{{ url_for('match.edit_match', id=match.id) }}', 'Edit Match');">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <form action="{{ url_for('match.delete_match', id=match.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" onclick="return confirm('Are you sure you want to delete this match?');">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        {%endif%}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-<table>
-    <thead>
-        <tr>
-            <th>Date (UTC)</th>
-            <th>Competition</th>
-            <th>Season</th>
-            <th>Home Club</th>
-            <th>Away Club</th>
-            <th>Winner</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for match in matches %}
-        <tr>
-            <td>{{ match.dateutc }}</td>
-            <td>{{ match.competition }}</td>
-            <td>{{ match.season }}</td>
-            <td>{{ match.home_club }}</td>
-            <td>{{ match.away_club }}</td>
-            <td>{{ match.winner or 'N/A' }}</td>
-            <td>
-                <a href="{{ url_for('match_details.match_details', id=match.id) }}">View</a>
-                <a href="{{ url_for('match.edit_match', id=match.id) }}">Edit</a>
-                <form action="{{ url_for('match.delete_match', id=match.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this match?');">Delete</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<script>
+function updateSelectedFilters() {
+    const selectedFiltersContainer = document.querySelector('.selected-filters');
+    selectedFiltersContainer.innerHTML = ''; 
+
+    const dateFrom = document.getElementById('date-from').value;
+    const dateTo = document.getElementById('date-to').value;
+    if (dateFrom || dateTo) {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        if (dateFrom && dateTo) {
+            tag.innerHTML = `Date: ${dateFrom} - ${dateTo} 
+                <button onclick="removeFilter('date-filter-group')">&times;</button>`;
+        } else if (dateFrom) {
+            tag.innerHTML = `From Date: ${dateFrom} 
+                <button onclick="removeFilter('date-filter-group')">&times;</button>`;
+        } else {
+            tag.innerHTML = `To Date: ${dateTo} 
+                <button onclick="removeFilter('date-filter-group')">&times;</button>`;
+        }
+        selectedFiltersContainer.appendChild(tag);
+    }
+
+    const homeClubFilter = document.getElementById('home-club-filter');
+    if (homeClubFilter && homeClubFilter.value) {
+        const selectedOption = homeClubFilter.options[homeClubFilter.selectedIndex];
+        const selectedHomeClubName = selectedOption ? selectedOption.textContent : 'Unknown Club';
+        if (selectedHomeClubName && selectedHomeClubName !== 'All Clubs') {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `Home Club: ${selectedHomeClubName} 
+                <button onclick="removeFilter('home-club-filter')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+    }
+
+    const awayClubFilter = document.getElementById('away-club-filter');
+    if (awayClubFilter && awayClubFilter.value) {
+        const selectedOption = awayClubFilter.options[awayClubFilter.selectedIndex];
+        const selectedAwayClubName = selectedOption ? selectedOption.textContent : 'Unknown Club';
+        if (selectedAwayClubName && selectedAwayClubName !== 'All Clubs') {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `Away Club: ${selectedAwayClubName} 
+                <button onclick="removeFilter('away-club-filter')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+    }
+
+    const winnerFilter = document.getElementById('winner-filter');
+    if (winnerFilter && winnerFilter.value) {
+        const selectedOption = winnerFilter.options[winnerFilter.selectedIndex];
+        const selectedWinnerName = selectedOption ? selectedOption.textContent : 'Unknown Club';
+        if (selectedWinnerName && selectedWinnerName !== 'All Clubs') {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `Winner: ${selectedWinnerName} 
+                <button onclick="removeFilter('winner-filter')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+    }
+
+    const competition = document.getElementById('competition-filter').value;
+    if (competition) {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        tag.innerHTML = `Competition: ${competition} 
+            <button onclick="removeFilter('competition-filter')">&times;</button>`;
+        selectedFiltersContainer.appendChild(tag);
+    }
+
+    const season = document.getElementById('season-filter').value;
+    if (season) {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        tag.innerHTML = `Season: ${season} 
+            <button onclick="removeFilter('season-filter')">&times;</button>`;
+        selectedFiltersContainer.appendChild(tag);
+    }
+
+    updateClearFiltersVisibility();
+}
+
+function removeFilter(filterId) {
+
+    if (filterId.startsWith('date-filter')) {
+
+        const dateFrom = document.getElementById('date-from');
+        const dateTo = document.getElementById('date-to');
+        if (dateFrom) dateFrom.value = '';
+        if (dateTo) dateTo.value = '';
+    }else {
+
+        const element = document.getElementById(filterId);
+        if (element) {
+            if (element.tagName === 'SELECT') {
+                element.value = ''; 
+            } else if (element.tagName === 'INPUT') {
+                element.value = ''; 
+            }
+        }
+    }
+
+    updateSelectedFilters();
+    applyFilters();
+}
+
+</script>
 {% endblock %}
