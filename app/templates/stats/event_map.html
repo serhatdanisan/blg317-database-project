@@ -1,0 +1,155 @@
+<div class="event-map-main__container">
+    <div class="map__container">
+        <div class="slider-wrapper">
+            <div class="button-group">
+                <button id="set-first-half-{{ id_suffix }}">1H</button>
+                <button id="set-second-half-{{ id_suffix }}">2H</button>
+                <button id="set-full-match-{{ id_suffix }}">FT</button>
+            </div>
+            <div class="double-slider-container">
+                <div class="slider-ticks">
+                    <div class="tick" style="left: 5.56%;"></div>
+                    <div class="tick" style="left: 11.11%;"></div>
+                    <div class="tick tick-large" style="left: 16.67%;"></div>
+                    <div class="tick" style="left: 22.22%;"></div>
+                    <div class="tick" style="left: 27.78%;"></div>
+                    <div class="tick tick-large" style="left: 33.33%;"></div>
+                    <div class="tick" style="left: 38.89%;"></div>
+                    <div class="tick" style="left: 44.44%;"></div>
+                    <div class="tick tick-large" style="left: 50%;"></div>
+                    <div class="tick" style="left: 55.56%;"></div>
+                    <div class="tick" style="left: 61.11%;"></div>
+                    <div class="tick tick-large" style="left: 66.67%;"></div>
+                    <div class="tick" style="left: 72.22%;"></div>
+                    <div class="tick" style="left: 77.78%;"></div>
+                    <div class="tick tick-large" style="left: 83.33%;"></div>
+                    <div class="tick" style="left: 88.89%;"></div>
+                    <div class="tick" style="left: 94.44%;"></div>
+                </div>
+                <div class="slider-range"></div>
+                <!-- Thumb Start -->
+                <div class="slider-thumb" id="thumb-start-{{ id_suffix }}">
+                    <div class="slider-label"
+                        id="label-start-{{ id_suffix }}">0</div>
+                </div>
+                <!-- Thumb End -->
+                <div class="slider-thumb" id="thumb-end-{{ id_suffix }}">
+                    <div class="slider-label"
+                        id="label-end-{{ id_suffix }}">90</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOME PLAYERS -->
+        <div class="home-players">
+            <div class="select-all-container">
+                <div class="select-container">
+                    <input type="checkbox" class="select-all-checkbox"
+                        id="select-all-home-checkbox-{{ id_suffix }}" checked>
+                    <label
+                        for="select-all-home-checkbox-{{ id_suffix }}"></label>
+                </div>
+                <span>Select All</span>
+            </div>
+            <ul class="player-list">
+                {% for player in home_players %}
+                <li class="player-item" data-player-id="{{ player.id }}">
+                    <div class="select-container">
+                        <input type="checkbox"
+                            class="player-select"
+                            id="home-player-{{ player.id }}-{{ id_suffix }}"
+                            checked>
+                        <label
+                            for="home-player-{{ player.id }}-{{ id_suffix }}"></label>
+                    </div>
+                    <a
+                        href="{{ url_for('player.get_player', id=player.id) }}">
+                        {{ player.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- SAHANIN SVG KISMI -->
+        <div class="event-map__field">
+            <svg width="100%" height="100%" viewBox="0 0 105 68"
+                xmlns="http://www.w3.org/2000/svg">
+                {% include "stats/field.html" %}
+                {% for point in points %}
+                <circle
+                    cx="{{ point.x_coordinate }}"
+                    cy="{{ point.y_coordinate }}"
+                    r="1.5"
+                    fill="{% if point.is_home %}#ff6c37{% else %}#6c83ff{% endif %}"
+                    stroke="white"
+                    stroke-width="0.4"
+                    class="event-map__circle"
+                    data-index="{{ loop.index0 }}"
+                    data-player-id="{{ point.player_id }}"
+                    data-end-x="{{ point.end_x_coordinate }}"
+                    data-end-y="{{ point.end_y_coordinate }}">
+                </circle>
+                {% endfor %}
+
+                <!-- Highlight Circle & Dynamic Line -->
+                <circle
+                    id="event-map__highlight-circle-{{ id_suffix }}"
+                    cx="0"
+                    cy="0"
+                    r="2"
+                    fill="none"
+                    stroke="red"
+                    stroke-width="0.5"
+                    style="display: none;">
+                </circle>
+                <line
+                    id="event-map__dynamic-line-{{ id_suffix }}"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="0"
+                    stroke="red"
+                    stroke-width="0.5"
+                    style="display: none;">
+                </line>
+            </svg>
+        </div>
+
+        <!-- AWAY PLAYERS -->
+        <div class="away-players">
+            <div class="select-all-container">
+                <div class="select-container">
+                    <input type="checkbox" class="select-all-checkbox"
+                        id="select-all-away-checkbox-{{ id_suffix }}" checked>
+                    <label
+                        for="select-all-away-checkbox-{{ id_suffix }}"></label>
+                </div>
+                <span>Select All</span>
+            </div>
+            <ul class="player-list">
+                {% for player in away_players %}
+                <li class="player-item" data-player-id="{{ player.id }}">
+                    <div class="select-container">
+                        <input type="checkbox"
+                            class="player-select"
+                            id="away-player-{{ player.id }}-{{ id_suffix }}"
+                            checked>
+                        <label
+                            for="away-player-{{ player.id }}-{{ id_suffix }}"></label>
+                    </div>
+                    <a
+                        href="{{ url_for('player.get_player', id=player.id) }}">
+                        {{ player.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+    <div id="base-url"
+        data-url="{{ url_for('player.get_player', id=0) }}"></div>
+
+</div>

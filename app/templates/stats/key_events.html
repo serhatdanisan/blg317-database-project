@@ -1,71 +1,79 @@
-<div class="container">
+<div class="match-events">
     <div class="card-header-with-shadow">key
         events</div>
-    <div class="period-container">
-        {% for event in key_events if event.period
-        == "1H"%}
-        <div class="row">
+    <div class="match-events__period">
+        {% for event in key_events if event.period == "1H"%}
+        <div class="match-events__row">
             <div
-                class="home-part {% if not event.is_home %}empty{% endif %}">
+                class="match-events__team-part match-events__team-part--home {% if not event.is_home %}match-events__team-part--empty{% endif %}">
                 {% if event.is_home %}
-                <div class="event-details home">
-                    <div class="details-up">{{
-                        event.details_up }}</div>
-                    {% if event.icon[:4] == "goal"
-                    %}
-                    <div class="details-down">{{
-                        ' '.join(event.details_down.split(' ')[1:])
-                        }}</div>
+                <div class="match-events__details match-events__details--home">
+                    <a
+                        href="{{ url_for('player.get_player', id=event.player_id) }}">
+                        <div class="match-events__details-up">{{
+                            event.details_up }}</div>
+                    </a>
+                    {% if event.icon[:4] == "goal" %}
+                    <div class="match-events__details-down">{{
+                        ' '.join(event.details_down.split(' ')[1:]) }}</div>
+                    {% elif event.icon == "sub" %}
+                    <a
+                        href="{{ url_for('player.get_player', id=event.player_id) }}">
+                        <div class="match-events__details-down">{{
+                            event.details_down }}</div>
+                    </a>
                     {% else %}
-                    <div class="details-down">{{
+                    <div class="match-events__details-down">{{
                         event.details_down }}</div>
                     {% endif %}
                 </div>
                 {% if event.icon[:4] == "goal" %}
-                <div class="current-score home">
-                    <img class="icon-home"
+                <div class="match-events__score match-events__score--home">
+                    <img class="match-events__icon match-events__icon--home"
                         src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
-                    {{
-                    event.details_down.split(' ')[0]
-                    }}
+                    {{ event.details_down.split(' ')[0] }}
                 </div>
                 {% else %}
-                <img class="icon-home"
+                <img class="match-events__icon match-events__icon--home"
                     src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
                 {% endif %}
                 {% endif %}
             </div>
 
-            <div class="minute-container">
-                <div class="minute">{{ event.minute
+            <div class="match-events__minute">
+                <div class="match-events__minute-value">{{ event.minute
                     }}'</div>
             </div>
 
             <div
-                class="away-part {% if event.is_home %}empty{% endif %}">
+                class="match-events__team-part match-events__team-part--away {% if event.is_home %}match-events__team-part--empty{% endif %}">
                 {% if not event.is_home %}
                 {% if event.icon[:4] == "goal" %}
-                <div class="current-score away">
-                    <img class="icon-away"
+                <div class="match-events__score match-events__score--away">
+                    <img class="match-events__icon match-events__icon--away"
                         src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
-                    {{
-                    event.details_down.split(' ')[0]
-                    }}
+                    {{ event.details_down.split(' ')[0] }}
                 </div>
                 {% else %}
-                <img class="icon-away"
+                <img class="match-events__icon match-events__icon--away"
                     src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
                 {% endif %}
-                <div class="event-details away">
-                    <div class="details-up">{{
-                        event.details_up }}</div>
-                    {% if event.icon[:4] == "goal"
-                    %}
-                    <div class="details-down">{{
-                        ' '.join(event.details_down.split(' ')[1:])
-                        }}</div>
+                <div class="match-events__details match-events__details--away">
+                    <a
+                        href="{{ url_for('player.get_player', id=event.player_id) }}">
+                        <div class="match-events__details-up">{{
+                            event.details_up }}</div></a>
+                    {% if event.icon[:4] == "goal" %}
+                    <div class="match-events__details-down">{{
+                        ' '.join(event.details_down.split(' ')[1:]) }}</div>
+                    {% elif event.icon == "sub" %}
+                    <a
+                        href="{{ url_for('player.get_player', id=event.player_id) }}">
+                        <div class="match-events__details-down">{{
+                            event.details_down }}</div>
+                    </a>
                     {% else %}
-                    <div class="details-down">{{
+                    <div class="match-events__details-down">{{
                         event.details_down }}</div>
                     {% endif %}
                 </div>
@@ -75,79 +83,85 @@
         </div>
         {% endfor %}
     </div>
-    <div class="period-info">
-        <div class="text-line">
-            <div
-                class="period-separator-line"></div>
+    <div class="match-events__period-info">
+        <div class="match-events__text-line">
+            <div class="match-events__separator"></div>
             <span> HT </span>
-            <div
-                class="period-separator-line"></div>
+            <div class="match-events__separator"></div>
         </div>
     </div>
-    <div class="period-container">
+    <div class="match-events__period">
 
-        {% for event in key_events if event.period
-        == "2H"%}
-        <div class="row">
+        {% for event in key_events if event.period == "2H"%}
+        <div class="match-events__row">
             <div
-                class="home-part {% if not event.is_home %}empty{% endif %}">
+                class="match-events__team-part match-events__team-part--home {% if not event.is_home %}match-events__team-part--empty{% endif %}">
                 {% if event.is_home %}
-                <div class="event-details home">
-                    <div class="details-up">{{
-                        event.details_up }}</div>
-                    {% if event.icon[:4] == "goal"
-                    %}
-                    <div class="details-down">{{
-                        ' '.join(event.details_down.split(' ')[1:])
-                        }}</div>
+                <div class="match-events__details match-events__details--home">
+                    <a
+                        href="{{ url_for('player.get_player', id=event.player_id) }}">
+                        <div class="match-events__details-up">{{
+                            event.details_up }}</div>
+                    </a>
+                    {% if event.icon[:4] == "goal" %}
+                    <div class="match-events__details-down">{{
+                        ' '.join(event.details_down.split(' ')[1:]) }}</div>
+                    {% elif event.icon == "sub" %}
+                    <a
+                        href="{{ url_for('player.get_player', id=event.player_id) }}">
+                        <div class="match-events__details-down">{{
+                            event.details_down }}</div>
+                    </a>
                     {% else %}
-                    <div class="details-down">{{
+                    <div class="match-events__details-down">{{
                         event.details_down }}</div>
                     {% endif %}
                 </div>
                 {% if event.icon[:4] == "goal" %}
-                <div class="current-score home">
-                    <img class="icon-home"
+                <div class="match-events__score match-events__score--home">
+                    <img class="match-events__icon match-events__icon--home"
                         src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
-                    {{
-                    event.details_down.split(' ')[0]
-                    }}
+                    {{ event.details_down.split(' ')[0] }}
                 </div>
                 {% else %}
-                <img class="icon-home"
+                <img class="match-events__icon match-events__icon--home"
                     src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
                 {% endif %}
                 {% endif %}
             </div>
-            <div class="minute-container">
-                <div class="minute">{{ event.minute
+            <div class="match-events__minute">
+                <div class="match-events__minute-value">{{ event.minute
                     }}'</div>
             </div>
             <div
-                class="away-part {% if  event.is_home %}empty{% endif %}">
+                class="match-events__team-part match-events__team-part--away {% if event.is_home %}match-events__team-part--empty{% endif %}">
                 {% if event.icon[:4] == "goal" %}
-                <div class="current-score away">
-                    <img class="icon-away"
+                <div class="match-events__score match-events__score--away">
+                    <img class="match-events__icon match-events__icon--away"
                         src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
-                    {{
-                    event.details_down.split(' ')[0]
-                    }}
+                    {{ event.details_down.split(' ')[0] }}
                 </div>
                 {% else %}
-                <img class="icon-away"
+                <img class="match-events__icon match-events__icon--away"
                     src="{{ url_for('static', filename='images/icons/' + event.icon + '.svg') }}">
                 {% endif %}
                 {% if not event.is_home %}
-                <div class="event-details away">
-                    <div class="details-up">{{
-                        event.details_up }}</div>
-                    {% if event.icon[:4] == "goal"
-                    %}
-                    <div class="details-down">{{
-                        ' '.join(event.details_down.split(' ')[1:])
-                        }}</div>
+                <div class="match-events__details match-events__details--away">
+                    <a
+                        href="{{ url_for('player.get_player', id=event.player_id) }}">
+                        <div class="match-events__details-up">{{
+                            event.details_up }}</div> </a>
+                    {% if event.icon[:4] == "goal" %}
+                    <div class="match-events__details-down">{{
+                        ' '.join(event.details_down.split(' ')[1:]) }}</div>
+                    {% elif event.icon == "sub" %}
+                    <a
+                        href="{{ url_for('player.get_player', id=event.player_id) }}">
+                        <div class="match-events__details-down">{{
+                            event.details_down }}</div>
+                    </a>
                     {% else %}
-                    <div class="details-down">{{
+                    <div class="match-events__details-down">{{
                         event.details_down }}</div>
                     {% endif %}
                 </div>
@@ -156,13 +170,11 @@
         </div>
         {% endfor %}
     </div>
-    <div class="period-info">
-        <div class="text-line">
-            <div
-                class="period-separator-line"></div>
+    <div class="match-events__period-info">
+        <div class="match-events__text-line">
+            <div class="match-events__separator"></div>
             <span> FT </span>
-            <div
-                class="period-separator-line"></div>
+            <div class="match-events__separator"></div>
         </div>
     </div>
 </div>

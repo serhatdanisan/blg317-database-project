@@ -1,25 +1,22 @@
-<div class="match_extra_details">
+<div class="match-details">
     <div class="card-header-with-shadow">Details</div>
-    <div class="detail_items">
-        <div class="detail-item">
+    <div class="match-details__items">
+        <div class="match-details__item">
             <i class="fa-solid fa-location-dot"></i>
-            <span>{{ match.city }} , {{ match.country }}
-            </span>
+            <span>{{ match.city }} , {{ match.country }}</span>
         </div>
-        <div class="detail-item">
+        <div class="match-details__item">
             <i class="fa-solid fa-trophy"></i>
             <span>{{ match.league }}</span>
         </div>
-        <div class="detail-item">
+        <div class="match-details__item">
             <i class="fa-solid fa-calendar-days"></i>
-            <span>{{ match.date.strftime("%d %b %Y - %H:%M")
-                }}</span>
+            <span>{{ match.date.strftime("%d %b %Y - %H:%M") }}</span>
         </div>
-        <div class="detail-item">
+        <div class="match-details__item">
             <i class="fa-solid fa-futbol"></i>
             <span>{{ match.stadium }}
-                <span class="small-text">({{ match.capacity
-                    }}
+                <span class="match-details__small-text">({{ match.capacity }}
                     Seats)</span>
             </span>
         </div>

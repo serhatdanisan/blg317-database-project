@@ -5,20 +5,26 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Match Details</title>
         <link rel="stylesheet"
-            href="{{ url_for('static', filename='match_details.css') }}">
+            href="{{ url_for('static', filename='/css/stats/stats_page_main.css') }}">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='/css/stats/match_summary.css') }}">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='/css/stats/form_guides.css') }}">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='/css/stats/key_events.css') }}">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='/css/stats/match_details.css') }}">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='/css/stats/starting_XI.css') }}">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='/css/stats/stats_bars.css') }}">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='/css/stats/event_map.css') }}">
         <link rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body>
-        <nav class="navbar">
-            <div class="navbar-brand"><a href="#home">FootDATA</a></div>
-            <ul class="navbar-links">
-                <li><a href="#about">LEAGUES</a></li>
-                <li><a href="#services">TEAMS</a></li>
-                <li><a href="#contact">MATCHES</a></li>
-                <li><a href="#contact">ABOUT</a></li>
-            </ul>
-        </nav>
+        {% include "navbar.html" %}
         <div class="content">
             {% include "stats/match_summary.html" %}
 
@@ -29,25 +35,106 @@
                     <button class="main-tab-link"
                         data-tab="main-tab-stats">Stats</button>
                     <button class="main-tab-link"
-                        data-tab="main-tab-coordinates">Coordinates</button>
+                        data-tab="main-tab-event-maps">Event Map</button>
                 </div>
             </div>
-            <div class="first_row">
-                <div class="main-tabs">
-                    <div class="main-tab-contents">
-                        <div class="main-tab-content active"
-                            id="main-tab-key-events">
-                            {% include "stats/key_events.html" %}
-                        </div>
-                        <div class="main-tab-content" id="main-tab-stats">
-                            {% include "stats/stats_bars.html" %}
-                        </div>
+            <div class="main-tabs">
+                <div class="main-tab-contents">
+                    <div class="main-tab-content active"
+                        id="main-tab-key-events">
+                        {% include "stats/key_events.html" %}
                     </div>
-                    <div class="main-tab-content" id="main-tab-coordinates">
-                        {% include "stats/stats_coordinates.html" %}
+                    <div class="main-tab-content" id="main-tab-stats">
+                        {% include "stats/stats_bars.html" %}
                     </div>
-                </div>
+                    <div class="main-tab-content" id="main-tab-event-maps">
 
+                        <div class="event-map-contents">
+
+                            <div class="event-map-content active"
+                                id="event-map-tab-1">
+                                <div id="event-map-1" class="event-map">
+                                    {% with points=shots, id_suffix="1" %}
+                                    {% include "stats/event_map.html" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+
+                            <div class="event-map-content" id="event-map-tab-2">
+                                <div id="event-map-2" class="event-map">
+                                    {% with points=passes, id_suffix="2" %}
+                                    {% include "stats/event_map.html" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+
+                            <div class="event-map-content" id="event-map-tab-3">
+                                <div id="event-map-3" class="event-map">
+                                    {% with points=interceptions, id_suffix="3"
+                                    %}
+                                    {% include "stats/event_map.html" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="event-map-content" id="event-map-tab-4">
+                                <div id="event-map-4" class="event-map">
+                                    {% with points=offsides, id_suffix="4" %}
+                                    {% include "stats/event_map.html" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="event-map-content" id="event-map-tab-5">
+                                <div id="event-map-5" class="event-map">
+                                    {% with points=duels, id_suffix="5" %}
+                                    {% include "stats/event_map.html" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="event-map-content" id="event-map-tab-6">
+                                <div id="event-map-6" class="event-map">
+                                    {% with points=fouls, id_suffix="6" %}
+                                    {% include "stats/event_map.html" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="event-map-content" id="event-map-tab-7">
+                                <div id="event-map-7" class="event-map">
+                                    {% with points=freekicks, id_suffix="7" %}
+                                    {% include "stats/event_map.html" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="event-map-content" id="event-map-tab-8">
+                                <div id="event-map-8" class="event-map">
+                                    {% with points=saves, id_suffix="8" %}
+                                    {% include "stats/event_map.html" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="event-map-tabs">
+                                <button class="event-map-tab-link active"
+                                    data-tab="event-map-tab-1">Shots</button>
+                                <button class="event-map-tab-link"
+                                    data-tab="event-map-tab-2">Passes</button>
+                                <button class="event-map-tab-link"
+                                    data-tab="event-map-tab-3">Interceptions</button>
+                                <button class="event-map-tab-link"
+                                    data-tab="event-map-tab-4">offsides</button>
+                                <button class="event-map-tab-link"
+                                    data-tab="event-map-tab-5">duels</button>
+                                <button class="event-map-tab-link"
+                                    data-tab="event-map-tab-6">fouls</button>
+                                <button class="event-map-tab-link"
+                                    data-tab="event-map-tab-7">freekicks</button>
+                                <button class="event-map-tab-link"
+                                    data-tab="event-map-tab-8">saves</button>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
                 <div class="side-container">
                     {% include "stats/match_details.html" %}
                     {% include "stats/starting_XI.html" %}
@@ -56,17 +143,48 @@
                     {% endif %}
                 </div>
             </div>
-
             <script>
-    const shots = {{ shots | tojson | safe }};
+                const shots = {{ shots | tojson }};
+                const passes = {{ passes | tojson }};
+                const interceptions = {{ interceptions | tojson }};
+                const offsides = {{ offsides | tojson }};
+                const duels = {{ duels | tojson }};
+                const fouls = {{ fouls | tojson }};
+                const freekicks = {{ freekicks | tojson }};
+                const saves = {{ saves | tojson }};
+                const playerImages = {{ player_images | tojson }};
             </script>
             <script
-                src="{{ url_for('static', filename='js/shots_script.js') }}"></script>
+                src="{{ url_for('static', filename='js/event_coordinates_script.js') }}"></script>
             <script
                 src="{{ url_for('static', filename='js/tabs_script.js') }}"></script>
 
             <script
                 src="{{ url_for('static', filename='js/main_tabs.js') }}"></script>
+            <script
+                src="{{ url_for('static', filename='js/event_map_slider.js') }}"></script>
         </div>
+        <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+    const eventMapTabs = document.querySelectorAll(".event-map-tab-link");
+    const eventMapContents = document.querySelectorAll(".event-map-content");
+
+    eventMapTabs.forEach((tab) => {
+        tab.addEventListener("click", function () {
+            const targetTab = this.getAttribute("data-tab");
+
+            eventMapTabs.forEach((link) => link.classList.remove("active"));
+            eventMapContents.forEach((content) =>
+                content.classList.remove("active")
+            );
+
+            this.classList.add("active");
+            document.getElementById(targetTab).classList.add("active");
+        });
+    });
+});
+
+            </script>
     </body>
 </html>

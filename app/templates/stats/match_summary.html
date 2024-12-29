@@ -1,76 +1,88 @@
-<div class="match-summary-container"
+<div class="match-summary"
     style="background-image: url('{{ url_for('static', filename='images/match-header-texture.webp') }}')">
 
-    <div class="league-name">{{ match.league }}</div>
-    <div class="match-date">{{ match.date.strftime("%d %b %Y")
-        }}</div>
+    <div class="match-summary__league-name">{{ match.league }}</div>
+    <div class="match-summary__date">{{ match.date.strftime("%d %b %Y") }}</div>
 
-    <div class="teams-and-scores">
-        <div class="home-team-info">
-            <div class="team-name home-team">{{ match.home_name
-                }}</div>
-            <img class="team-logo home-team"
-                src="{{ url_for('static', filename='images/Clubs/' + match.home_id|string + '.png') }}">
+    <div class="match-summary__teams">
+        <div class="match-summary__team-info match-summary__team-info--home">
+            <div
+                class="match-summary__team-name match-summary__team-name--home">{{
+                match.home_name }}</div>
+            <a href="{{ url_for('club.get_club', id=match.home_id) }}">
+                <img
+                    class="match-summary__team-logo match-summary__team-logo--home"
+                    src="{{ url_for('static', filename='images/Clubs/' + match.home_id|string + '.png') }}">
+            </a>
         </div>
 
-        <div class="mid-section">
-            <div class="score">
-                <div class="team-score home-score">{{
-                    match.home_score
-                    }}</div>
-                <div class="separator">-</div>
-                <div class="team-score away-score">{{
-                    match.away_score
-                    }}</div>
+        <div class="match-summary__score-section">
+            <div class="match-summary__score">
+                <div
+                    class="match-summary__team-score match-summary__team-score--home">{{
+                    match.home_score }}</div>
+                <div class="match-summary__separator">-</div>
+                <div
+                    class="match-summary__team-score match-summary__team-score--away">{{
+                    match.away_score }}</div>
             </div>
         </div>
 
-        <div class="away-team-info">
-            <img class="team-logo away-team"
-                src="{{ url_for('static', filename='images/Clubs/' + match.away_id|string + '.png') }}">
-            <div class="team-name away-team">{{ match.away_name
-                }}</div>
+        <div class="match-summary__team-info match-summary__team-info--away">
+            <a href="{{ url_for('club.get_club', id=match.away_id) }}">
+                <img
+                    class="match-summary__team-logo match-summary__team-logo--away"
+                    src="{{ url_for('static', filename='images/Clubs/' + match.away_id|string + '.png') }}">
+            </a>
+            <div
+                class="match-summary__team-name match-summary__team-name--away">{{
+                match.away_name }}</div>
         </div>
     </div>
 
-    <div class="full-time">FT</div>
+    <div class="match-summary__full-time">FT</div>
 
-    <div class="separator-line"></div>
+    <div class="match-summary__separator-line"></div>
 
-    <div class="goals-container">
-
-        <div class="home-goals">
+    <div class="match-summary__goals">
+        <div class="match-summary__goals-list match-summary__goals-list--home">
             {% for goal in home_goals %}
             {% if loop.index0 % 3 == 0 %}
-            <div class="goal-row">
+            <div class="match-summary__goal-row">
                 {% endif %}
-                <div class="goal-item">
-                    {{ goal.minute }}' {{ goal.player_name }}
-                    {% if goal.is_own_goal %}
-                    (o.g.)
-                    {% elif goal.is_penalty %}
-                    (P)
-                    {% endif %}
-                </div>
+                <a
+                    href="{{ url_for('player.get_player', id=goal.player_id) }}">
+                    <div class="match-summary__goal-item">
+                        {{ goal.minute }}' {{ goal.player_name }}
+                        {% if goal.is_own_goal %}
+                        (o.g.)
+                        {% elif goal.is_penalty %}
+                        (P)
+                        {% endif %}
+                    </div>
+                </a>
                 {% if loop.index0 % 3 == 2 or loop.last %}
             </div>
             {% endif %}
             {% endfor %}
         </div>
 
-        <div class="away-goals">
+        <div class="match-summary__goals-list match-summary__goals-list--away">
             {% for goal in away_goals %}
             {% if loop.index0 % 3 == 0 %}
-            <div class="goal-row">
+            <div class="match-summary__goal-row">
                 {% endif %}
-                <div class="goal-item">
-                    {{ goal.minute }}' {{ goal.player_name }}
-                    {% if goal.is_own_goal %}
-                    (o.g.)
-                    {% elif goal.is_penalty %}
-                    (P)
-                    {% endif %}
-                </div>
+                <a
+                    href="{{ url_for('player.get_player', id=goal.player_id) }}">
+                    <div class="match-summary__goal-item">
+                        {{ goal.minute }}' {{ goal.player_name }}
+                        {% if goal.is_own_goal %}
+                        (o.g.)
+                        {% elif goal.is_penalty %}
+                        (P)
+                        {% endif %}
+                    </div>
+                </a>
                 {% if loop.index0 % 3 == 2 or loop.last %}
             </div>
             {% endif %}
@@ -78,8 +90,6 @@
         </div>
     </div>
 
-    <div class="match-ht-ft">
-        {{ ht_ft }}
-    </div>
+    <div class="match-summary__ht-ft">{{ ht_ft }}</div>
 
 </div>

@@ -1,99 +1,99 @@
-<div class="outer-stats-container">
+<div class="match-stats">
 
-    <div class="stats-container">
-        <div class="card-header-with-shadow">Match
-            Overview</div>
+    <div class="match-stats__section">
+        <div class="card-header-with-shadow">Match Overview</div>
         {% for event in summary_widths %}
-        <div class="stats-header">
-            <div class="home-value">{{
+        <div class="match-stats__header">
+            <div class="match-stats__value match-stats__value--home">{{
                 event.home_count }}</div>
-            <div class="metric-name">{{ event.metric
-                }}</div>
-            <div class="away-value">{{
+            <div class="match-stats__metric">{{ event.metric }}</div>
+            <div class="match-stats__value match-stats__value--away">{{
                 event.away_count }}</div>
         </div>
-        <div class="bar-row">
-            <div class="bar-container left">
-                <div class="bar home-bar"
+        <div class="match-stats__bar-row">
+            <div
+                class="match-stats__bar-container match-stats__bar-container--left">
+                <div class="match-stats__bar match-stats__bar--home"
                     style="width: {{ event.home_width }}%; opacity: {{ '1' if event.home_width >= event.away_width else '0.4' }};"></div>
             </div>
-            <div class="bar-container right">
-                <div class="bar away-bar"
+            <div
+                class="match-stats__bar-container match-stats__bar-container--right">
+                <div class="match-stats__bar match-stats__bar--away"
                     style="width: {{ event.away_width }}%; opacity: {{ '1' if event.away_width >= event.home_width else '0.4' }};"></div>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <div class="stats-container">
-        <div
-            class="card-header-with-shadow">Shot</div>
+    <div class="match-stats__section">
+        <div class="card-header-with-shadow">Shot</div>
         {% for event in shot_widths %}
-        <div class="stats-header">
-            <div class="home-value">{{
+        <div class="match-stats__header">
+            <div class="match-stats__value match-stats__value--home">{{
                 event.home_count }}</div>
-            <div class="metric-name">{{ event.metric
-                }}</div>
-            <div class="away-value">{{
+            <div class="match-stats__metric">{{ event.metric }}</div>
+            <div class="match-stats__value match-stats__value--away">{{
                 event.away_count }}</div>
         </div>
-        <div class="bar-row">
-            <div class="bar-container left">
-                <div class="bar home-bar"
+        <div class="match-stats__bar-row">
+            <div
+                class="match-stats__bar-container match-stats__bar-container--left">
+                <div class="match-stats__bar match-stats__bar--home"
                     style="width: {{ event.home_width }}%; opacity: {{ '1' if event.home_width >= event.away_width else '0.4' }};"></div>
             </div>
-            <div class="bar-container right">
-                <div class="bar away-bar"
+            <div
+                class="match-stats__bar-container match-stats__bar-container--right">
+                <div class="match-stats__bar match-stats__bar--away"
                     style="width: {{ event.away_width }}%; opacity: {{ '1' if event.away_width >= event.home_width else '0.4' }};"></div>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <div class="stats-container">
-        <div
-            class="card-header-with-shadow">Pass</div>
+    <div class="match-stats__section">
+        <div class="card-header-with-shadow">Pass</div>
         {% for event in pass_widths %}
-        <div class="stats-header">
-            <div class="home-value">{{
+        <div class="match-stats__header">
+            <div class="match-stats__value match-stats__value--home">{{
                 event.home_count }}</div>
-            <div class="metric-name">{{ event.metric
-                }}</div>
-            <div class="away-value">{{
+            <div class="match-stats__metric">{{ event.metric }}</div>
+            <div class="match-stats__value match-stats__value--away">{{
                 event.away_count }}</div>
         </div>
-        <div class="bar-row">
-            <div class="bar-container left">
-                <div class="bar home-bar"
+        <div class="match-stats__bar-row">
+            <div
+                class="match-stats__bar-container match-stats__bar-container--left">
+                <div class="match-stats__bar match-stats__bar--home"
                     style="width: {{ event.home_width }}%; opacity: {{ '1' if event.home_width >= event.away_width else '0.4' }};"></div>
             </div>
-            <div class="bar-container right">
-                <div class="bar away-bar"
+            <div
+                class="match-stats__bar-container match-stats__bar-container--right">
+                <div class="match-stats__bar match-stats__bar--away"
                     style="width: {{ event.away_width }}%; opacity: {{ '1' if event.away_width >= event.home_width else '0.4' }};"></div>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <div class="stats-container">
-        <div
-            class="card-header-with-shadow">Defence</div>
+    <div class="match-stats__section">
+        <div class="card-header-with-shadow">Defence</div>
         {% for event in def_widths %}
-        <div class="stats-header">
-            <div class="home-value">{{
+        <div class="match-stats__header">
+            <div class="match-stats__value match-stats__value--home">{{
                 event.home_count }}</div>
-            <div class="metric-name">{{ event.metric
-                }}</div>
-            <div class="away-value">{{
+            <div class="match-stats__metric">{{ event.metric }}</div>
+            <div class="match-stats__value match-stats__value--away">{{
                 event.away_count }}</div>
         </div>
-        <div class="bar-row">
-            <div class="bar-container left">
-                <div class="bar home-bar"
+        <div class="match-stats__bar-row">
+            <div
+                class="match-stats__bar-container match-stats__bar-container--left">
+                <div class="match-stats__bar match-stats__bar--home"
                     style="width: {{ event.home_width }}%; opacity: {{ '1' if event.home_width >= event.away_width else '0.4' }};"></div>
             </div>
-            <div class="bar-container right">
-                <div class="bar away-bar"
+            <div
+                class="match-stats__bar-container match-stats__bar-container--right">
+                <div class="match-stats__bar match-stats__bar--away"
                     style="width: {{ event.away_width }}%; opacity: {{ '1' if event.away_width >= event.home_width else '0.4' }};"></div>
             </div>
         </div>

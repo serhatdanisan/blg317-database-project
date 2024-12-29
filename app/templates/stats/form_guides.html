@@ -1,75 +1,60 @@
-<div class="form-guide-container">
+<div class="form-guide">
     <div class="card-header-with-shadow">Form Guides</div>
-    <div class="form-guides">
-        <div class="form-guide-teams">
-            <div class="guide-home-name">{{ match.home_name
-                }}</div>
+    <div class="form-guide__sections">
+        <div class="form-guide__team-names">
+            <div class="form-guide__team-name--home">{{ match.home_name }}</div>
         </div>
-        <div class="form-home-guide">
+        <div class="form-guide__matches--home">
             {% for prev_match in home_last_5 %}
             <a
                 href="{{ url_for('match_details.match_details', id=prev_match.match_id) }}">
                 <div
-                    class="form-card {% if prev_match.result %}win{% else %}loss{% endif %}">
-                    <div class="form-card-result">
-                        {% if prev_match.result %}
-                        WIN
-                        {% else %}
-                        LOSS
-                        {% endif %}
+                    class="form-guide__card {% if prev_match.result %}win{% else %}loss{% endif %}">
+                    <div class="form-guide__card-result">
+                        {% if prev_match.result %}WIN{% else %}LOSS{% endif %}
                     </div>
-                    <div class="form-card-content">
-                        <div class="form-home-score">{{
+                    <div class="form-guide__card-content">
+                        <div class="form-guide__card-score--home">{{
                             prev_match.home_goals }}</div>
-                        <div class="form-line-score">-</div>
-                        <div class="form-away-score">{{
+                        <div class="form-guide__card-score-line">-</div>
+                        <div class="form-guide__card-score--away">{{
                             prev_match.away_goals }}</div>
-                        <img class="form-home-logo"
+                        <img class="form-guide__card-logo--home"
                             src="{{ url_for('static', filename='images/Clubs/' + prev_match.home_id|string + '.png') }}">
-                        <img class="form-away-logo"
+                        <img class="form-guide__card-logo--away"
                             src="{{ url_for('static', filename='images/Clubs/' + prev_match.away_id|string + '.png') }}">
-                        <div class="form-card-date">{{
-                            prev_match.date.strftime('%d/%m/%y')
-                            }}</div>
+                        <div class="form-guide__card-date">{{
+                            prev_match.date.strftime('%d/%m/%y') }}</div>
                     </div>
-
                 </div>
             </a>
             {% endfor %}
         </div>
-
-        <div class="form-guide-teams">
-            <div class="guide-away-name">{{ match.away_name
-                }}</div>
+        <div class="form-guide__team-names">
+            <div class="form-guide__team-name--away">{{ match.away_name }}</div>
         </div>
-        <div class="form-away-guide">
+        <div class="form-guide__matches--away">
             {% for prev_match in away_last_5 %}
             <a
                 href="{{ url_for('match_details.match_details', id=prev_match.match_id) }}">
                 <div
-                    class="form-card {% if prev_match.result %}win{% else %}loss{% endif %}">
-                    <div class="form-card-result">
-                        {% if prev_match.result %}
-                        WIN
-                        {% else %}
-                        LOSS
-                        {% endif %}
+                    class="form-guide__card {% if prev_match.result %}win{% else %}loss{% endif %}">
+                    <div class="form-guide__card-result">
+                        {% if prev_match.result %}WIN{% else %}LOSS{% endif %}
                     </div>
-                    <div class="form-card-content">
-                        <div class="form-home-score">{{
+                    <div class="form-guide__card-content">
+                        <div class="form-guide__card-score--home">{{
                             prev_match.home_goals }}</div>
-                        <div class="form-line-score">-</div>
-                        <div class="form-away-score">{{
+                        <div class="form-guide__card-score-line">-</div>
+                        <div class="form-guide__card-score--away">{{
                             prev_match.away_goals }}</div>
-                        <img class="form-home-logo"
+                        <img class="form-guide__card-logo--home"
                             src="{{ url_for('static', filename='images/Clubs/' + prev_match.home_id|string + '.png') }}">
-                        <img class="form-away-logo"
+                        <img class="form-guide__card-logo--away"
                             src="{{ url_for('static', filename='images/Clubs/' + prev_match.away_id|string + '.png') }}">
-                        <div class="form-card-date">{{
-                            prev_match.date.strftime('%d/%m/%y')
-                            }}</div>
+                        <div class="form-guide__card-date">{{
+                            prev_match.date.strftime('%d/%m/%y') }}</div>
                     </div>
-
                 </div>
             </a>
             {% endfor %}
