@@ -1,48 +1,231 @@
 {% extends "base.html" %}
 
-{% block title %}Stadium List{% endblock %}
-
-{% block header %}Stadiums{% endblock %}
+{% block title %}Stadiums{% endblock %}
 
 {% block content %}
-<h2>Stadiums</h2>
+<div class="table-container">
+    {% if session["role"]%}
+    <div class="title-add-container">
+        <h1>Stadium List</h1>
+        <div class="add-item">
+            <i class="fa-solid fa-plus"></i>
+            <a href="#"
+                onclick="event.preventDefault(); openPopup('{{ url_for('stadium.add_stadium') }}', 'Add Stadium');">Add
+                Stadium</a>
+        </div>
+    </div>
+    {% endif %}
 
-<!-- Add Stadium Button -->
-<div style="margin-bottom: 20px;">
-    <a href="{{ url_for('stadium.add_stadium') }}" class="button">Add New Stadium</a>
-</div>
+    <div class="filter-container">
 
-<!-- Stadium Table -->
-{% if stadiums %}
+        <div class="filter-group" id="name-filter-group"
+            onclick="toggleFilter('name-filter-group', event)">
+            <label>Name</label>
+            <div class="filter-content">
+                <select name="name" id="name-filter">
+                    <option value>All Names</option>
+                    {% for name in unique_names %}
+                    <option value="{{ name }}" {% if filters.get('name') == name
+                        %}selected{% endif %}>
+                        {{ name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="city-filter-group"
+            onclick="toggleFilter('city-filter-group', event)">
+            <label>City</label>
+            <div class="filter-content">
+                <select name="city" id="city-filter">
+                    <option value>All Cities</option>
+                    {% for city in unique_cities %}
+                    <option value="{{ city }}" {% if filters.get('city') == city
+                        %}selected{% endif %}>
+                        {{ city }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="country-filter-group"
+            onclick="toggleFilter('country-filter-group', event)">
+            <label>Country</label>
+            <div class="filter-content">
+                <select name="country" id="country-filter">
+                    <option value>All Countries</option>
+                    {% for country in countries %}
+                    <option value="{{ country.id }}" {% if
+                        filters.get('country') == country.id|string %}selected{%
+                        endif %}>
+                        {{ country.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="capacity-filter-group"
+            onclick="toggleFilter('capacity-filter-group', event)">
+            <label>Capacity</label>
+            <div class="filter-content">
+                <input type="number" id="capacity-min" name="capacity_min"
+                    value="{{ filters.get('capacity_min', '') }}"
+                    placeholder="Min Capacity">
+                <i class="fa-solid fa-less-than-equal"></i>
+                <input type="number" id="capacity-max" name="capacity_max"
+                    value="{{ filters.get('capacity_max', '') }}"
+                    placeholder="Max Capacity">
+                <button class="apply-filter-btn"
+                    onclick="applyGroupFilters('capacity-filter-group')">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="selected-filters-container">
+        <div class="selected-filters">
+
+        </div>
+        <button class="clear-filters-btn" onclick="clearAllFilters()">Clear
+            Filters</button>
+    </div>
+
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>City</th>
-                <th>Country</th>
-                <th>Capacity</th>
-                <th>Actions</th>
+                <th data-column="name" data-type="text" style="width: 20%;">Name
+                    <span class="sort-icon" onclick="sortTable('name', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="city" data-type="text" style="width: 20%;">City
+                    <span class="sort-icon" onclick="sortTable('city', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="country" data-type="text"
+                    style="width: 20%;">Country
+                    <span class="sort-icon"
+                        onclick="sortTable('country', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="capacity" data-type="number"
+                    style="width: 20%;">Capacity
+                    <span class="sort-icon"
+                        onclick="sortTable('capacity', 'number')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th style="width: 13%;">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for stadium in stadiums %}
             <tr>
-                <td>{{ stadium.name }}</td>
-                <td>{{ stadium.city }}</td>
-                <td>{{ stadium.country }}</td>
-                <td>{{ "{:,}".format(stadium.capacity) }} spectators</td>
+                <td data-column="name">{{ stadium.name }}</td>
+                <td data-column="city">{{ stadium.city }}</td>
+                <td data-column="country">{{ stadium.country }}</td>
+                <td data-column="capacity">{{ stadium.capacity }}</td>
                 <td>
-                    <a href="{{ url_for('stadium.get_stadium', id=stadium.id) }}">View</a>
-                    <a href="{{ url_for('stadium.edit_stadium', id=stadium.id) }}">Edit</a>
-                    <form action="{{ url_for('stadium.delete_stadium', id=stadium.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" onclick="return confirm('Are you sure you want to delete this stadium?');">Delete</button>
-                    </form>
+                    <div class="action-links">
+                        <a
+                            href="{{ url_for('stadium.get_stadium', id=stadium.id) }}">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        {% if session["role"]%}
+                        <a href="#"
+                            onclick="event.preventDefault(); openPopup('{{ url_for('stadium.edit_stadium', id=stadium.id) }}', 'Edit Stadium');">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <form
+                            action="{{ url_for('stadium.delete_stadium', id=stadium.id) }}"
+                            method="POST" style="display:inline;">
+                            <button type="submit"
+                                onclick="return confirm('Are you sure you want to delete this stadium?');">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-{% else %}
-    <p>No stadiums found.</p>
-{% endif %}
+</div>
+
+<script>
+    function updateSelectedFilters() {
+        const selectedFiltersContainer = document.querySelector('.selected-filters');
+        selectedFiltersContainer.innerHTML = ''; 
+
+        const capacityMin = document.getElementById('capacity-min').value;
+        const capacityMax = document.getElementById('capacity-max').value;
+        if (capacityMin || capacityMax) {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            if (capacityMin && capacityMax) {
+                tag.innerHTML = `Capacity: ${capacityMin} - ${capacityMax} 
+                    <button onclick="removeFilter('capacity-filter-group')">&times;</button>`;
+            } else if (capacityMin) {
+                tag.innerHTML = `Capacity > ${capacityMin} 
+                    <button onclick="removeFilter('capacity-filter-group')">&times;</button>`;
+            } else {
+                tag.innerHTML = `Capacity < ${capacityMax} 
+                    <button onclick="removeFilter('capacity-filter-group')">&times;</button>`;
+            }
+            selectedFiltersContainer.appendChild(tag);
+        }
+        const countryFilter = document.getElementById('country-filter');
+    if (countryFilter && countryFilter.value.trim() !== '') {
+        const selectedOption = countryFilter.options[countryFilter.selectedIndex];
+        const selectedCountryName = selectedOption ? selectedOption.textContent : 'Unknown Country';
+        if (selectedCountryName !== 'All Countries') {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `Country: ${selectedCountryName} 
+                <button onclick="removeFilter('country-filter')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+    }
+
+        const filters = [
+            { id: 'name-filter', label: 'Name' },
+            { id: 'city-filter', label: 'City' }
+        ];
+
+        filters.forEach(filter => {
+            const element = document.getElementById(filter.id);
+            if (element && element.value && element.value !== 'All') {
+                const tag = document.createElement('div');
+                tag.className = 'filter-tag';
+                tag.innerHTML = `${filter.label}: ${element.value} 
+                    <button onclick="removeFilter('${filter.id}')">&times;</button>`;
+                selectedFiltersContainer.appendChild(tag);
+            }
+        });
+
+        updateClearFiltersVisibility();
+    }
+
+    function removeFilter(filterId) {
+        if (filterId === 'capacity-filter-group') {
+            const capacityMin = document.getElementById('capacity-min');
+            const capacityMax = document.getElementById('capacity-max');
+            if (capacityMin) capacityMin.value = '';
+            if (capacityMax) capacityMax.value = '';
+        } else {
+            const element = document.getElementById(filterId);
+            if (element) {
+                element.value = ''; 
+            }
+        }
+
+        updateSelectedFilters();
+        applyFilters();
+    }
+</script>
 {% endblock %}
