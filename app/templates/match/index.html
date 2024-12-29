@@ -155,7 +155,7 @@
         <tbody>
             {% for match in matches %}
             <tr>
-                <td data-column="dateutc">{{ match.dateutc.strftime("%d %b %Y") }}</td>
+                <td data-column="dateutc">{{ match.dateutc.strftime('%d/%m/%y %H:%M') }}</td>
                 <td data-column="competition">{{ match.competition | title }}</td>
                 <td data-column="season">{{ match.season }}</td>
                 <td data-column="home_club">{{ match.home_club }}</td>
