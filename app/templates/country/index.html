@@ -2,33 +2,179 @@
 
 {% block title %}Countries{% endblock %}
 
-{% block header %}Countries{% endblock %}
-
 {% block content %}
-<h2>Country List</h2>
-<div>
-    <a href="{{ url_for('country.add_country') }}">Add Country</a>
+<div class="table-container">
+    {% if session["role"]%}
+    <div class="title-add-container">
+        <h1>Country List</h1>
+        <div class="add-item">
+            <i class="fa-solid fa-plus"></i>
+            <a href="#"
+                onclick="event.preventDefault(); openPopup('{{ url_for('country.add_country') }}', 'Add Country');">Add
+                Country</a>
+        </div>
+    </div>
+    {%endif%}
+
+    <div class="filter-container">
+
+        <div class="filter-group" id="name-filter-group"
+            onclick="toggleFilter('name-filter-group', event)">
+            <label>Name</label>
+            <div class="filter-content">
+                <select name="name" id="name-filter">
+                    <option value>All Names</option>
+                    {% for name in unique_names %}
+                    <option value="{{ name }}" {% if filters.get('name') == name
+                        %}selected{% endif %}>
+                        {{ name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="capital-city-filter-group"
+            onclick="toggleFilter('capital-city-filter-group', event)">
+            <label>Capital City</label>
+            <div class="filter-content">
+                <select name="capital_city" id="capital-city-filter">
+                    <option value>All Capitals</option>
+                    {% for capital in unique_capitals %}
+                    <option value="{{ capital }}" {% if
+                        filters.get('capital_city') == capital %}selected{%
+                        endif %}>
+                        {{ capital }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="region-filter-group"
+            onclick="toggleFilter('region-filter-group', event)">
+            <label>Region</label>
+            <div class="filter-content">
+                <select name="region" id="region-filter">
+                    <option value>All Regions</option>
+                    {% for region in unique_regions %}
+                    <option value="{{ region }}" {% if filters.get('region') ==
+                        region %}selected{% endif %}>
+                        {{ region }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="selected-filters-container">
+        <div class="selected-filters">
+
+        </div>
+        <button class="clear-filters-btn" onclick="clearAllFilters()">Clear
+            Filters</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th data-column="name" data-type="text"
+                    style="width: 28.33%;">Name
+                    <span class="sort-icon" onclick="sortTable('name', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="capital_city" data-type="text"
+                    style="width: 28.33%;">Capital City
+                    <span class="sort-icon"
+                        onclick="sortTable('capital_city', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="region" data-type="text"
+                    style="width: 28.33%;">Region
+                    <span class="sort-icon"
+                        onclick="sortTable('region', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th style="width: 13%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for country in countries %}
+            <tr>
+                <td data-column="name">{{ country.name }}</td>
+                <td data-column="capital_city">{{ country.capital_city }}</td>
+                <td data-column="region">{{ country.region }}</td>
+                <td>
+                    <div class="action-links">
+                        <a
+                            href="{{ url_for('country.get_country', id=country.id) }}">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        {% if session["role"]%}
+                        <a href="#"
+                            onclick="event.preventDefault(); openPopup('{{ url_for('country.edit_country', id=country.id) }}', 'Edit Country');">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <form method="POST"
+                            action="{{ url_for('country.delete_country', id=country.id) }}"
+                            style="display:inline;">
+                            <button type="submit"
+                                onclick="return confirm('Are you sure?');">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                        {%endif%}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Capital City</th>
-        <th>Region</th>
-        <th>Actions</th>
-    </tr>
-    {% for country in countries %}
-    <tr>
-        <td>{{ country.name }}</td>
-        <td>{{ country.capital_city }}</td>
-        <td>{{ country.region }}</td>
-        <td>
-            <a href="{{ url_for('country.get_country', id=country.id) }}">View</a> |
-            <a href="{{ url_for('country.edit_country', id=country.id) }}">Edit</a> |
-            <form method="POST" action="{{ url_for('country.delete_country', id=country.id) }}" style="display:inline;">
-                <button type="submit" onclick="return confirm('Are you sure?');">Delete</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<script>
+    function updateSelectedFilters() {
+    const selectedFiltersContainer = document.querySelector('.selected-filters');
+    selectedFiltersContainer.innerHTML = ''; 
+
+    const filters = [
+        { id: 'name-filter', label: 'Name' },
+        { id: 'capital-city-filter', label: 'Capital City' },
+        { id: 'region-filter', label: 'Region' }
+    ];
+
+    filters.forEach(filter => {
+        const element = document.getElementById(filter.id);
+        if (element && element.value.trim() !== '') {
+            const selectedOption = element.options[element.selectedIndex]?.text || element.value.trim();
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `${filter.label}: ${selectedOption} 
+                <button onclick="removeFilter('${filter.id}')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+    });
+
+    updateClearFiltersVisibility();
+}
+
+function removeFilter(filterId) {
+
+    const element = document.getElementById(filterId);
+
+    if (element) {
+        if (element.tagName === 'SELECT') {
+            element.value = ''; 
+        } else if (element.tagName === 'INPUT') {
+            element.value = ''; 
+        }
+    }
+
+    updateSelectedFilters();
+    applyFilters();
+}
+</script>
 {% endblock %}
