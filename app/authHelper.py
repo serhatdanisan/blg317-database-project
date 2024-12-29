@@ -38,4 +38,22 @@ def deleteUser(id):
         error = f"User {id} does not exist."
 
     return error
+def updateUser(val):
+    error = None
+    try:
+        if db.cur is None or db.cur.closed: db.cur = db.conn.cursor()
+        parts = []
+        for k in val.keys():
+            if k != 'user_id':
+                parts.append(f'{k}=%s')
+        db.cur.execute(
+            "UPDATE users SET " + ', '.join(parts) + " WHERE userid = %s",
+            list(val.values())
+        )
+        db.conn.commit()
+        db.refreshDatabaseConnection()
 
+    except IntegrityError:
+        error = f"User {id} does not exist."
+
+    return error
