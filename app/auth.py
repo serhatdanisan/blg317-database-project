@@ -1,5 +1,5 @@
 from flask import request, render_template, Blueprint, redirect, url_for, session, flash
-from authHelper import getUser, registerUser, deleteUser
+from authHelper import getUser, registerUser, deleteUser, updateUser
 from werkzeug.security import generate_password_hash, check_password_hash
 import functools
 
