@@ -2,14 +2,99 @@
 
 {% block title %}Country Details{% endblock %}
 
-{% block header %}Country Details{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet"
+    href="{{ url_for('static', filename='country_style.css') }}">
+{% endblock %}
 
 {% block content %}
 {% if country %}
-    <h2>{{ country.name }}</h2>
-    <p><strong>Capital City:</strong> {{ country.capital_city }}</p>
-    <p><strong>Region:</strong> {{ country.region }}</p>
+<div>
+    <div class="country-container">
+
+        <div class="country-logo">
+            <img
+                src="{{ url_for('static', filename='images/Flags/' + country.id|string + '.png') }}"
+                alt="Country Flag">
+
+            <div class="country-basic">
+                <div class="country-name">{{ country.name }}</div>
+            </div>
+        </div>
+
+        <div class="country-info">
+            <div class="capital-info">
+                <strong>Capital City:</strong>
+                <span>{{ country.capital_city }}</span>
+            </div>
+            <div class="region-info">
+                <strong>Region:</strong>
+                <span>{{ country.region }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="players-row">
+
+        <div class="players-container" id="goals-container">
+            <div class="card-header" id="top-scorers">TOP SCORERS</div>
+            {% for player in top_scorers %}
+            <div class="player-card">
+                <a href="{{ url_for('player.get_player', id=player[0]) }}">
+                    <div class="player-image">
+                        <img src="{{ scorer_player_images[player[0]] }}"
+                            alt="{{ player[1] }}">
+                    </div>
+                    <span class="player-name">{{ player[1] }}</span>
+                </a>
+                <div class="player-goals">
+                    <span>{{ player[2] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="players-container" id="assist-container">
+            <div class="card-header" id="top-assist">MOST ASSISTS</div>
+            {% for player in top_assists %}
+            <div class="player-card">
+                <a href="{{ url_for('player.get_player', id=player[0]) }}">
+                    <div class="player-image">
+                        <img src="{{ assist_player_images[player[0]] }}"
+                            alt="{{ player[1] }}">
+                    </div>
+                    <span class="player-name">{{ player[1] }}</span>
+                </a>
+                <div class="player-goals">
+                    <span>{{ player[2] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="players-container" id="most-goal-contributions">
+            <div class="card-header" id="top-goal-cont">MOST GOAL
+                CONTRIBUTIONS</div>
+            {% for player in top_contributions %}
+            <div class="player-card">
+                <a href="{{ url_for('player.get_player', id=player[0]) }}">
+                    <div class="player-image">
+                        <img src="{{ cont_player_images[player[0]] }}"
+                            alt="{{ player[1] }}">
+                    </div>
+                    <span class="player-name">{{ player[1] }}</span>
+                </a>
+                <div class="player-goals">
+                    <span>{{ player[2] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/animation.js') }}"></script>
+</div>
 {% else %}
-    <p>Country details not found.</p>
+<p>Country details not found.</p>
 {% endif %}
 {% endblock %}
