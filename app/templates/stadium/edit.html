@@ -1,12 +1,5 @@
-{% extends "base.html" %}
-
-{% block title %}Edit Stadium{% endblock %}
-
-{% block header %}Edit Stadium{% endblock %}
-
-{% block content %}
 <h2>Edit Stadium</h2>
-<form method="POST">
+<form method="POST" action="{{ url_for('stadium.edit_stadium', id=stadium.id) }}" id="edit-stadium-form">
     <label for="stadium">Stadium Name:</label>
     <input type="text" name="stadium" value="{{ stadium.stadium }}" required><br>
 
@@ -31,4 +24,3 @@
 
     <button type="submit">Save Changes</button>
 </form>
-{% endblock %}
