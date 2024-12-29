@@ -1,0 +1,84 @@
+.match-stats {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  border-radius: 25px;
+  flex: 0.75;
+  gap: 35px;
+}
+
+.match-stats__section {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-background-color);
+  border-radius: 25px;
+  color: var(--text-color);
+}
+
+.match-stats__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  padding-right: 45px;
+  padding-left: 45px;
+}
+
+.match-stats__value {
+  width: 50px;
+}
+
+.match-stats__value--home {
+  text-align: left;
+}
+
+.match-stats__value--away {
+  text-align: right;
+}
+
+.match-stats__metric {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.match-stats__bar-row {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.match-stats__bar-container {
+  position: relative;
+  height: 12px;
+  width: 46%;
+  background-color: var(--secondary-background-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.match-stats__bar-container--left {
+  direction: rtl;
+  margin-left: 20px;
+}
+
+.match-stats__bar-container--right {
+  margin-right: 20px;
+}
+
+.match-stats__bar {
+  height: 100%;
+  border-radius: 8px;
+  text-align: right;
+}
+
+.match-stats__bar--home {
+  background-color: var(--home-team-color);
+}
+
+.match-stats__bar--away {
+  background-color: var(--away-team-color);
+}

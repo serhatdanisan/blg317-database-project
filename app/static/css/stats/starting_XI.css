@@ -1,0 +1,140 @@
+.starting-lineup__player-row a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--main-green-color);
+}
+
+.starting-lineup {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 5px;
+  margin: 0;
+  background-color: var(--card-background-color);
+  border-radius: 25px;
+}
+
+.starting-lineup__tabs {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--secondary-background-color);
+  width: 92%;
+  align-self: center;
+}
+
+.starting-lineup__tab-link {
+  flex: 1;
+  text-align: center;
+  padding: 15px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.starting-lineup__tab-link--active[data-tab="home"]
+  .starting-lineup__tab-team-name {
+  color: var(--home-team-color);
+}
+
+.starting-lineup__tab-link--active[data-tab="home"]::after {
+  height: 4px;
+  background-color: var(--home-team-color);
+}
+
+.starting-lineup__tab-link--active[data-tab="away"]
+  .starting-lineup__tab-team-name {
+  color: var(--away-team-color);
+}
+
+.starting-lineup__tab-link--active[data-tab="away"]::after {
+  height: 4px;
+  background-color: var(--away-team-color);
+}
+
+.starting-lineup__tab-team-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.starting-lineup__tab-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--secondary-background-color);
+  transition: background-color 0.3s ease, height 0.3s ease;
+}
+
+.starting-lineup__tab-content {
+  display: none;
+  padding: 10px;
+}
+
+.starting-lineup__tab-content--active {
+  display: block;
+}
+
+.starting-lineup__player-row {
+  display: flex;
+  align-items: center;
+  margin-left: 3px;
+  width: 100%;
+  padding: 6px 0px;
+}
+
+.starting-lineup__player-country-container {
+  padding-left: 15px;
+}
+
+.starting-lineup__player-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--secondary-background-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+}
+
+.starting-lineup__player-image img {
+  width: 95%;
+  height: auto;
+  border-radius: 50%;
+}
+
+.starting-lineup__player-country {
+  position: absolute;
+  bottom: -5px;
+  right: -7px;
+  z-index: 10;
+}
+
+.starting-lineup__player-country img {
+  width: 20px;
+  height: auto;
+  border-radius: 3px;
+  box-shadow: 1px 1px 6px rgba(248, 248, 248, 0.3);
+}
+
+.starting-lineup__player-position {
+  width: 22px;
+  padding-left: 20px;
+}
+
+.starting-lineup__player-name {
+  padding-left: 15px;
+  font-size: 18px;
+}
+
+.starting-lineup__separator {
+  width: 1.5px;
+  height: 40px;
+  background-color: var(--secondary-background-color);
+  margin-left: 15px;
+}

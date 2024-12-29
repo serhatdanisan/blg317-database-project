@@ -1,0 +1,153 @@
+.match-summary__goal-row a:hover {
+  text-decoration: underline;
+  text-decoration-color: white;
+}
+
+.match-summary {
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: var(--text-color);
+  text-align: center;
+  width: 100%;
+  margin: 10px auto;
+  padding: 10px 0 20px 0;
+  box-sizing: border-box;
+  border-radius: 25px;
+}
+
+.match-summary__league-name {
+  margin-bottom: 5px;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.match-summary__date {
+  font-size: 18px;
+  font-weight: 200;
+  margin-top: 5px;
+}
+
+.match-summary__teams {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Grotesk", sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.match-summary__team-info {
+  display: flex;
+  flex: 0.4;
+  align-items: center;
+  gap: 20px;
+}
+
+.match-summary__team-info--home {
+  justify-content: flex-end;
+}
+
+.match-summary__team-info--away {
+  justify-content: flex-start;
+}
+
+.match-summary__team-name {
+  text-transform: uppercase;
+}
+
+.match-summary__team-name--home {
+  text-align: right;
+}
+
+.match-summary__team-name--away {
+  text-align: left;
+}
+
+.match-summary__team-logo {
+  width: 90px;
+  height: 90px;
+}
+
+.match-summary__score-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  flex: 0.2;
+}
+
+.match-summary__score {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  text-align: center;
+  font-size: 50px;
+  gap: 8px;
+}
+
+.match-summary__full-time {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.match-summary__separator-line {
+  width: 75%;
+  height: 1px;
+  background-color: #777;
+  margin: 20px auto;
+}
+
+.match-summary__goals {
+  display: flex;
+  padding: 0 calc(100% / 8);
+}
+
+.match-summary__goals-list {
+  display: flex;
+  flex-wrap: wrap;
+  width: 45%;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.match-summary__goals-list--home {
+  justify-content: flex-end;
+  text-align: right;
+  padding-right: calc(100% / 10);
+}
+
+.match-summary__goals-list--away {
+  justify-content: flex-start;
+  text-align: left;
+  padding-left: calc(100% / 10);
+}
+
+.match-summary__goal-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+.match-summary__goals-list--home .match-summary__goal-row {
+  justify-content: flex-end;
+}
+
+.match-summary__goals-list--away .match-summary__goal-row {
+  justify-content: flex-start;
+}
+
+.match-summary__goal-item {
+  white-space: nowrap;
+}
+
+.match-summary__ht-ft {
+  font-size: 16px;
+  margin-top: 30px;
+  font-weight: 400;
+  text-align: center;
+}

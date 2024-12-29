@@ -1,0 +1,163 @@
+.form-guide {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 25px;
+  padding: 0 15px 25px 15px;
+  background-color: var(--card-background-color);
+  border-radius: 25px;
+}
+
+.form-guide__sections {
+  display: grid;
+  grid-template-areas:
+    "home-name away-name"
+    "home-matches away-matches";
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  justify-content: space-evenly;
+}
+
+.form-guide__team-names {
+  display: contents;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  grid-column: span 1;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  padding: 10px;
+}
+
+.form-guide__team-name--home {
+  display: grid;
+  place-items: center;
+  grid-area: home-name;
+}
+
+.form-guide__team-name--away {
+  display: grid;
+  place-items: center;
+  grid-area: away-name;
+}
+
+.form-guide__matches--home {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  align-items: center;
+  grid-area: home-matches;
+}
+
+.form-guide__matches--away {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  align-items: center;
+  grid-area: away-matches;
+}
+
+.form-guide__card {
+  display: flex;
+  border: 2px solid;
+  border-radius: 10px;
+  width: 75%;
+  padding: 10px;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-guide__card.win {
+  border-color: var(--main-green-color);
+}
+
+.form-guide__card.loss {
+  border-color: var(--main-red-color);
+}
+
+.form-guide__card.win:hover {
+  background-color: var(--main-green-color);
+}
+
+.form-guide__card.loss:hover {
+  background-color: var(--main-red-color);
+}
+
+.form-guide__card-result {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--main-red-color);
+  color: var(--text-color);
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.form-guide__card.win .form-guide__card-result {
+  background-color: var(--main-green-color);
+}
+
+.form-guide__card-content {
+  display: grid;
+  grid-template-areas:
+    "home-score line away-score"
+    "home-logo . away-logo"
+    ". date .";
+  align-items: center;
+  justify-content: center;
+}
+
+.form-guide__card-score--home {
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  font-weight: bold;
+  grid-area: home-score;
+}
+
+.form-guide__card-score--away {
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  font-weight: bold;
+  grid-area: away-score;
+}
+
+.form-guide__card-score-line {
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  font-weight: bold;
+  grid-area: line;
+}
+
+.form-guide__card-logo--home {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  grid-area: home-logo;
+}
+
+.form-guide__card-logo--away {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  grid-area: away-logo;
+}
+
+.form-guide__card-date {
+  display: grid;
+  place-items: center;
+  grid-area: date;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+  text-align: center;
+}
