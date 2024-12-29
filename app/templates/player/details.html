@@ -2,24 +2,129 @@
 
 {% block title %}Player Details{% endblock %}
 
-{% block header %}Player Details{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet"
+    href="{{ url_for('static', filename='player_style.css') }}">
+{% endblock %}
 
 {% block content %}
 {% if player %}
-    <h2>{{ player.firstname }} {{ player.lastname }}</h2>
-    <p><strong>Birthdate:</strong> {{ player.birthdate }}</p>
-    <p><strong>Country:</strong> {{ player.country }}</p>
-    <p><strong>Position:</strong> {{ player.position }}</p>
-    <p><strong>Main Foot:</strong> {{ player.foot }}</p>
-    <p><strong>Height:</strong> {{ player.height }} cm</p>
+<div>
+    <div class="player-container">
 
-    {% if player.club %}
-        <h3>Club Information:</h3>
-        <p><strong>Club:</strong> {{ player.club.name }} ({{ player.club.official_name }})</p>
-        <p><strong>Stadium:</strong> {{ player.club.stadium }} - {{ player.club.city }}</p>
-        <p><strong>Capacity:</strong> {{ player.club.capacity }}</p>
-    {% endif %}
+        <div class="player-photo">
+            <img src="{{ player_image }}">
+        </div>
+
+        <div class="player-info">
+            <div class="player-name">{{ player.firstname }}</div>
+            <div class="player-surname">{{ player.lastname }}</div>
+            <div class="player-nationality">
+                <img
+                    src="{{ url_for('static', filename='images/Flags/' + player.country_id|string + '.png') }}"
+                    class="nationality-flag">
+                <span>{{ player.country }}</span>
+            </div>
+        </div>
+
+        <div class="player-stats">
+            <div class="pos-info"><strong>Position: </strong>{{ player.position
+                }}</div>
+            <div class="foot-info"><strong>Foot: </strong><img class="foot-img "
+                    src="{{ url_for('static', filename='images/icons/' + player.foot|string + '.png') }}"></div>
+            <div class="height-info"><strong>Height: </strong>{{ player.height
+                }} cm</div>
+        </div>
+    </div>
+
+    <div class="player-stats-container">
+        <div class="stat-item">
+            <span class="stat-value" id="match-count"
+                data-target="{{match_count}}"></span>
+            <span class="stat-label">Matches</span>
+        </div>
+        {% if player.position in ['Midfielder', 'Forward'] %}
+        <div class="stat-item">
+            <span class="stat-value" id="goals"
+                data-target="{{player_goal_count}}"></span>
+            <span class="stat-label">Goals</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="assists"
+                data-target="{{player_assist_count}}"></span>
+            <span class="stat-label">Assists</span>
+        </div>
+        {% elif player.position in ['Goalkeeper'] %}
+        <div class="stat-item">
+            <span class="stat-value" id="clean-sheet"
+                data-target="{{ cln_sheet_count }}"></span>
+            <span class="stat-label">Clean Sheets</span>
+        </div>
+        {% elif player.position in ['Defender'] %}
+        <div class="stat-item">
+            <span class="stat-value" id="goals"
+                data-target="{{player_goal_count}}"></span>
+            <span class="stat-label">Goals</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="assists"
+                data-target="{{player_assist_count}}"></span>
+            <span class="stat-label">Assists</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="clean-sheet"
+                data-target="{{ cln_sheet_count }}"></span>
+            <span class="stat-label">Clean Sheets</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="player-matches">
+        <div class="content-header" id="played-matches">PLAYED MATCHES</div>
+
+        <table class="matches-table">
+            <thead class="matches-table-thead">
+                <tr>
+                    <th>date</th>
+                    <th>home</th>
+                    <th>score</th>
+                    <th>away</th>
+                    <th>goals</th>
+                    <th>assists</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in match_history %}
+                <tr class="matches-table-row">
+                    <td class="table-date">{{ match[1].strftime("%d %b %Y")
+                        }}</td>
+                    <td class="table-team"><a
+                            href="{{ url_for('club.get_club', id=match[5]) }}">{{
+                            match[2] }}</a></td>
+                    <td class="table-score"><a
+                            href="{{ url_for('home.get_match', id=match[0]) }}">{{
+                            match[3] }}</a></td>
+                    <td class="table-team"><a
+                            href="{{ url_for('club.get_club', id=match[6]) }}">{{
+                            match[4] }}</a></td>
+                    {% if player.position in ['Defender', 'Midfielder',
+                    'Forward'] %}
+                    <td class="table-goal">{{ get_match_goal_count(player.id,
+                        match[0]) }}</td>
+                    <td class="table-assist">{{
+                        get_match_assist_count(player.id, match[0]) }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+    <script src="/static/js/animation.js"></script>
+</div>
+
 {% else %}
-    <p>{{ error }}</p>
+<p>Club details not found.</p>
 {% endif %}
+
 {% endblock %}
