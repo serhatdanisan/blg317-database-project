@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <style>
+        .wrapper {
+            font-family: "DINPro";
+            background-color: #1d1d1d;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top:100px;
+        }
+
+        .center {
+            text-align: center;
+            margin: 0 auto;
+            max-width: 400px;
+            background-color: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .center p {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ff99d5;
+            margin: 10px 0;
+        }
+
+        form input[type="submit"] {
+            background-color: #ff3333;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form input[type="submit"]:hover {
+            background-color: #ff99d5;
+            color: #ffffff;
+        }
+    </style>
+    <div class="center">
+        {% for key, value in session.items() %}
+            <p>{{ key }}: {{ value }}</p>
+        {% endfor %}
+        <form method="post">
+            <input type="submit" value="Delete Account">
+        </form>
+    </div>
+
+</div>
+{% endblock %}
