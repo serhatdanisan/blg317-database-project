@@ -1,0 +1,94 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='navbar.css') }}">
+</head>
+<nav class="navbar">
+    <div class="navbar-brand">{% block header %}<a
+            href="{{ url_for('home.get_matches') }}">FootDATA</a>{% endblock
+        %}
+        <div class="navbar-search-container">
+            <div class="search-icon" onclick="toggleSearchBar()">
+                <i class="fa fa-search"></i>
+            </div>
+            <input type="text" id="search-bar" placeholder="Search...">
+            <div class="search-results" id="search-results">
+                <ul>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <ul class="navbar-links">
+        <li><a href="{{ url_for('match.get_matches') }}">MATCHES</a></li>
+        <li><a href="{{ url_for('club.get_clubs') }}">CLUBS</a></li>
+        <li><a href="{{ url_for('player.get_players') }}">PLAYERS</a></li>
+        <li><a href="{{ url_for('stadium.get_stadiums') }}">STADIUMS</a></li>
+        {% if session["user_id"] is defined %}
+        <li><a href="{{ url_for('event.get_events') }}">EVENTS</a></li>
+        {% endif %}
+        <li><a href="{{ url_for('country.get_countries') }}">COUNTRIES</a></li>
+        <div id="user_panel">
+            {% if session["user_id"] is defined %}
+            <a id='userInfo' href="{{ url_for('auth.user') }}">{{
+                session["username"] }}</a>
+            <a id='logout' href="{{ url_for('auth.logout') }}">Log Out</a>
+            {% else %}
+            <a id='login' href="{{ url_for('auth.login') }}">Login</a>
+            <a id='register' href="{{ url_for('auth.register') }}">Sign Up</a>
+            {% endif %}
+        </div>
+    </ul>
+    <script>
+document.getElementById("search-bar").addEventListener("input", function () {
+    const query = this.value.trim();
+    const resultsContainer = document.getElementById("search-results");
+
+    if (!query) {
+        resultsContainer.style.display = "none";
+        resultsContainer.querySelector("ul").innerHTML = "";
+        return;
+    }
+
+    fetch(`/search?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            const ul = resultsContainer.querySelector("ul");
+            ul.innerHTML = ""; // Clear previous results
+            if (data.length === 0) {
+                resultsContainer.style.display = "none";
+            } else {
+                resultsContainer.style.display = "block";
+                data.forEach(item => {
+                    const li = document.createElement("li");
+                    li.textContent = `${item.name} (${item.type})`;
+                    li.onclick = () => {
+                        window.location.href = `/${item.type}/${item.id}`;
+                    };
+                    ul.appendChild(li);
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error performing search:", error);
+        });
+});
+
+function toggleSearchBar() {
+    const searchBar = document.getElementById("search-bar");
+    const resultsContainer = document.getElementById("search-results");
+    const searchIcon = document.querySelector(".search-icon");
+
+    if (searchBar.classList.contains("active")) {
+        searchBar.classList.remove("active");
+        resultsContainer.style.display = "none";
+        searchIcon.classList.remove("active");
+    } else {
+        searchBar.classList.add("active");
+        searchBar.focus();
+        searchIcon.classList.add("active");
+    }
+}
+    </script>
+</nav>
