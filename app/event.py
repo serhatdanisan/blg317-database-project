@@ -1,12 +1,35 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from database import db
+from auth import isAdmin, loginRequired
 
 event_bp = Blueprint('event', __name__, template_folder="templates")
 
 @event_bp.route('/')
+@loginRequired
 def get_events():
-    """Fetches and displays a list of all events."""
+    """Fetches and displays a list of all events with optional filters."""
     try:
+        club_id = request.args.get('club')
+        date_from = request.args.get('date_from') 
+        date_to = request.args.get('date_to') 
+        player_name = request.args.get('player_name')
+        match_period = request.args.get('match_period')
+        event_sec_start = request.args.get('event_sec_start', type=float)
+        event_sec_end = request.args.get('event_sec_end', type=float)
+        event_name = request.args.get('event_name')
+        action = request.args.get('action')
+        modifier = request.args.get('modifier')
+        x_begin_start = request.args.get('x_begin_start', type=float)
+        x_begin_end = request.args.get('x_begin_end', type=float)
+        y_begin_start = request.args.get('y_begin_start', type=float)
+        y_begin_end = request.args.get('y_begin_end', type=float)
+        x_end_start = request.args.get('x_end_start', type=float)
+        x_end_end = request.args.get('x_end_end', type=float)
+        y_end_start = request.args.get('y_end_start', type=float)
+        y_end_end = request.args.get('y_end_end', type=float)
+        is_success = request.args.get('is_success')
+
+        # Temel sorgu
         query = """
         SELECT e.id, c.name AS club_name, f.dateutc AS match_date, 
                p.firstname || ' ' || p.lastname AS player_name,
@@ -16,10 +39,75 @@ def get_events():
         LEFT JOIN club c ON e.club_id = c.id
         LEFT JOIN football_match f ON e.football_match_id = f.id
         LEFT JOIN player p ON e.player_id = p.id
-        ORDER BY f.dateutc DESC, e.eventsec ASC
-        LIMIT 100;
+        WHERE 1=1
         """
-        events = db.executeQuery(query)
+        params = []
+        if club_id:
+            query += " AND c.id = %s"
+            params.append(club_id)
+        if date_from:
+            query += " AND f.dateutc >= %s"
+            params.append(date_from)
+        if date_to:
+            query += " AND f.dateutc <= %s"
+            params.append(date_to)
+        if player_name:
+            query += " AND LOWER(p.firstname || ' ' || p.lastname) LIKE %s"
+            params.append(f"%{player_name.lower()}%")
+        if match_period:
+            query += " AND e.matchperiod = %s"
+            params.append(match_period)
+        if event_sec_start is not None:
+            query += " AND e.eventsec >= %s"
+            params.append(event_sec_start)
+        if event_sec_end is not None:
+            query += " AND e.eventsec <= %s"
+            params.append(event_sec_end)
+        if event_name:
+            query += " AND e.eventname = %s"
+            params.append(event_name)
+        if action:
+            query += " AND e.action = %s"
+            params.append(action)
+        if modifier:
+            query += " AND e.modifier = %s"
+            params.append(modifier)
+        if x_begin_start is not None:
+            query += " AND e.x_begin >= %s"
+            params.append(x_begin_start)
+        if x_begin_end is not None:
+            query += " AND e.x_begin <= %s"
+            params.append(x_begin_end)
+        if y_begin_start is not None:
+            query += " AND e.y_begin >= %s"
+            params.append(y_begin_start)
+        if y_begin_end is not None:
+            query += " AND e.y_begin <= %s"
+            params.append(y_begin_end)
+        if x_end_start is not None:
+            query += " AND e.x_end >= %s"
+            params.append(x_end_start)
+        if x_end_end is not None:
+            query += " AND e.x_end <= %s"
+            params.append(x_end_end)
+        if y_end_start is not None:
+            query += " AND e.y_end >= %s"
+            params.append(y_end_start)
+        if y_end_end is not None:
+            query += " AND e.y_end <= %s"
+            params.append(y_end_end)
+        if is_success in ["0", "1"]:
+            query += " AND e.is_success = %s"
+            params.append(is_success)
+
+        query += " ORDER BY f.dateutc DESC, e.eventsec ASC LIMIT 100;"
+        events = db.executeQuery(query, params)
+
+        event_names = [row[0] for row in db.executeQuery("SELECT DISTINCT eventname FROM football_match_event")]
+        actions = [row[0] for row in db.executeQuery("SELECT DISTINCT action FROM football_match_event WHERE action IS NOT NULL")]
+        modifiers = [row[0] for row in db.executeQuery("SELECT DISTINCT modifier FROM football_match_event WHERE modifier IS NOT NULL")]
+
+        clubs = [{"id": row[0], "name": row[1]} for row in db.executeQuery("SELECT id, name FROM club ORDER BY name;")]
         events = [
             {
                 "id": event[0],
@@ -39,12 +127,15 @@ def get_events():
             }
             for event in events
         ]
+        
+        return render_template('event/index.html', events=events, clubs=clubs, event_names=event_names, actions=actions, modifiers=modifiers, filters=request.args)
+
     except Exception as e:
-        events = []
-        print(f"Error fetching events: {e}")
-    return render_template('event/index.html', events=events)
+        flash(f"Error: {str(e)}", "danger")
+        return redirect(url_for('event.get_events'))
 
 @event_bp.route('/<int:id>')
+@loginRequired
 def get_event(id):
     try:
         query = """
@@ -85,6 +176,7 @@ def get_event(id):
     return render_template('event/details.html', event=event)
 
 @event_bp.route('/add', methods=['GET', 'POST'])
+@isAdmin
 def add_event():
     """Adds a new event."""
     if request.method == 'POST':
@@ -122,6 +214,7 @@ def add_event():
     return render_template('event/add.html', clubs=clubs, matches=matches, players=players)
 
 @event_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+@isAdmin
 def edit_event(id):
     """Edits an existing event."""
     if request.method == 'POST':
@@ -168,7 +261,7 @@ def edit_event(id):
             "football_match_id": event_data[0][2],
             "player_id": event_data[0][3],
             "matchperiod": event_data[0][4],
-            "eventsec": event_data[0][5],
+            "eventsec": round(event_data[0][5],2),
             "eventname": event_data[0][6],
             "action": event_data[0][7],
             "modifier": event_data[0][8],
@@ -184,6 +277,7 @@ def edit_event(id):
         return render_template('event/edit.html', event=event, clubs=clubs, matches=matches, players=players)
 
 @event_bp.route('/delete/<int:id>', methods=['POST'])
+@isAdmin
 def delete_event(id):
     """Deletes an event."""
     try:
