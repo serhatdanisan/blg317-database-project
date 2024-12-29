@@ -1,19 +1,41 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from database import db
+from auth import isAdmin
 
 club_bp = Blueprint('club', __name__, template_folder="templates")
 
 @club_bp.route('/')
 def get_clubs():
     try:
+
+        name = request.args.get('name', '').strip()
+        official_name = request.args.get('official_name', '').strip()
+        country = request.args.get('country')
+        stadium = request.args.get('stadium')
         query = """
         SELECT c.id, c.name, c.officialname, c.country, s.stadium
         FROM club c
         LEFT JOIN stadiums s ON c.stadiums_id = s.id
-        ORDER BY c.name;
-
+        WHERE 1=1
         """
-        clubs = db.executeQuery(query)
+        params = []
+
+        if name:
+            query += " AND c.name ILIKE %s"
+            params.append(f"%{name}%")
+        if official_name:
+            query += " AND c.officialname ILIKE %s"
+            params.append(f"%{official_name}%")
+        if country:
+            query += " AND c.country = %s"
+            params.append(country)
+        if stadium:
+            query += " AND c.stadiums_id = %s"
+            params.append(stadium)
+
+        query += " ORDER BY c.name;"
+
+        clubs = db.executeQuery(query, params)
         clubs = [
             {
                 "id": club[0],
@@ -24,10 +46,17 @@ def get_clubs():
             }
             for club in clubs
         ]
+
+        countries = [{"id": row[0], "name": row[1]} for row in db.executeQuery("SELECT id, country FROM countries ORDER BY country;")]
+        stadiums = db.executeQuery("SELECT id, stadium FROM stadiums ORDER BY stadium;")
+
     except Exception as e:
         clubs = []
+        countries = []
+        stadiums = []
         print(f"Error fetching clubs: {e}")
-    return render_template('club/index.html', clubs=clubs)
+
+    return render_template('club/index.html', clubs=clubs, countries=countries, stadiums=stadiums, filters=request.args)
 
 @club_bp.route('/<int:id>')
 def get_club(id):
@@ -57,6 +86,7 @@ def get_club(id):
     return render_template('club/details.html', club=club)
 
 @club_bp.route('/add', methods=['GET', 'POST'])
+@isAdmin
 def add_club():
     """Adds a new club."""
     if request.method == 'POST':
@@ -82,6 +112,7 @@ def add_club():
     return render_template('club/add.html', countries=countries, stadiums=stadiums)
 
 @club_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+@isAdmin
 def edit_club(id):
     """Edits an existing club."""
     if request.method == 'POST':
@@ -121,6 +152,7 @@ def edit_club(id):
         return render_template('club/edit.html', club=club, countries=countries, stadiums=stadiums)
 
 @club_bp.route('/delete/<int:id>', methods=['POST'])
+@isAdmin
 def delete_club(id):
     """Deletes a club."""
     try:
