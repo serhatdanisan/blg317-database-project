@@ -2,35 +2,196 @@
 
 {% block title %}Clubs{% endblock %}
 
-{% block header %}Clubs{% endblock %}
-
 {% block content %}
-<h2>Club List</h2>
-<div>
-    <a href="{{ url_for('club.add_club') }}">Add Club</a>
+<div class="table-container">
+    {% if session["role"]%}
+        <div class="title-add-container">
+            <h1>Club List</h1>
+            <div class="add-item">
+                <i class="fa-solid fa-plus"></i>
+                <a href="#"
+                    onclick="event.preventDefault(); openPopup('{{ url_for('club.add_club') }}', 'Add Club');">Add Club</a>
+            </div>
+        </div>
+    {%endif%}
+
+    <div class="filter-container">
+
+        <div class="filter-group" id="name-filter-group" onclick="toggleFilter('name-filter-group', event)">
+            <label>Name</label>
+            <div class="filter-content">
+                <input type="text" id="name-filter" name="name" placeholder="Name" value="{{ filters.get('name', '') }}">
+                <button class="apply-filter-btn" onclick="applyGroupFilters('name-filter-group')">Apply</button>
+            </div>
+        </div>
+
+        <div class="filter-group" id="official-name-filter-group" onclick="toggleFilter('official-name-filter-group', event)">
+            <label>Official Name</label>
+            <div class="filter-content">
+                <input type="text" id="official-name-filter" name="official_name" placeholder="Official Name" value="{{ filters.get('official_name', '') }}">
+                <button class="apply-filter-btn" onclick="applyGroupFilters('official-name-filter-group')">Apply</button>
+            </div>
+        </div>
+
+        <div class="filter-group" id="country-filter-group" onclick="toggleFilter('country-filter-group', event)">
+            <label>Country</label>
+            <div class="filter-content">
+                <select name="country" id="country-filter">
+                    <option value="">All Countries</option>
+                    {% for country in countries %}
+                    <option value="{{ country.name }}" {% if filters.get('country') == country.name|string %}selected{% endif %}>
+                        {{ country.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-group" id="stadium-filter-group" onclick="toggleFilter('stadium-filter-group', event)">
+            <label>Stadium</label>
+            <div class="filter-content">
+                <select name="stadium" id="stadium-filter">
+                    <option value="">All Stadiums</option>
+                    {% for stadium in stadiums %}
+                    <option value="{{ stadium[0] }}" {% if filters.get('stadium') == stadium[0]|string %}selected{% endif %}>
+                        {{ stadium[1] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="selected-filters-container">
+        <div class="selected-filters">
+
+        </div>
+        <button class="clear-filters-btn" onclick="clearAllFilters()">Clear Filters</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th data-column="name" data-type="text" style="width: 20%;">Name
+                    <span class="sort-icon" onclick="sortTable('name', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="officialname" data-type="text" style="width: 20%;">Name
+                    <span class="sort-icon" onclick="sortTable('officialname', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="country" data-type="text" style="width: 20%;">Name
+                    <span class="sort-icon" onclick="sortTable('country', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th data-column="stadium" data-type="text" style="width: 20%;">Name
+                    <span class="sort-icon" onclick="sortTable('stadium', 'text')">
+                        <i class="fa-solid fa-sort"></i>
+                    </span>
+                </th>
+                <th style="width: 13%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for club in clubs %}
+            <tr>
+                <td data-column="name">{{ club.name }}</td>
+                <td data-column="officialname">{{ club.officialname }}</td>
+                <td data-column="country">{{ club.country }}</td>
+                <td data-column="stadium">{{ club.stadium }}</td>
+                <td>
+                    <div class="action-links">
+                        <a href="{{ url_for('club.get_club', id=club.id) }}">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        {% if session["role"]%}
+                            <a href="#" onclick="event.preventDefault(); openPopup('{{ url_for('club.edit_club', id=club.id) }}', 'Edit Club');">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('club.delete_club', id=club.id) }}">
+                                <button type="submit" onclick="return confirm('Are you sure?');">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        {%endif%}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Official Name</th>
-        <th>Country</th>
-        <th>Stadium</th>
-        <th>Actions</th>
-    </tr>
-    {% for club in clubs %}
-    <tr>
-        <td>{{ club.name }}</td>
-        <td>{{ club.officialname }}</td>
-        <td>{{ club.country }}</td>
-        <td>{{ club.stadium }}</td>
-        <td>
-            <a href="{{ url_for('club.get_club', id=club.id) }}">View</a> |
-            <a href="{{ url_for('club.edit_club', id=club.id) }}">Edit</a> |
-            <form method="POST" action="{{ url_for('club.delete_club', id=club.id) }}" style="display:inline;">
-                <button type="submit" onclick="return confirm('Are you sure?');">Delete</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+
+<script>
+    function updateSelectedFilters() {
+        const selectedFiltersContainer = document.querySelector('.selected-filters');
+        selectedFiltersContainer.innerHTML = ''; 
+
+        const nameFilter = document.getElementById('name-filter');
+        if (nameFilter && nameFilter.value.trim() !== '') {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `Name: ${nameFilter.value} 
+                <button onclick="removeFilter('name-filter')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+
+        const officialNameFilter = document.getElementById('official-name-filter');
+        if (officialNameFilter && officialNameFilter.value.trim() !== '') {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `Official Name: ${officialNameFilter.value} 
+                <button onclick="removeFilter('official-name-filter')">&times;</button>`;
+            selectedFiltersContainer.appendChild(tag);
+        }
+
+        const countryFilter = document.getElementById('country-filter');
+        if (countryFilter && countryFilter.value.trim() !== '') {
+            const selectedOption = countryFilter.options[countryFilter.selectedIndex];
+            const selectedCountryName = selectedOption ? selectedOption.textContent : 'Unknown Country';
+            if (selectedCountryName !== 'All Countries') {
+                const tag = document.createElement('div');
+                tag.className = 'filter-tag';
+                tag.innerHTML = `Country: ${selectedCountryName} 
+                    <button onclick="removeFilter('country-filter')">&times;</button>`;
+                selectedFiltersContainer.appendChild(tag);
+            }
+        }
+
+        const stadiumFilter = document.getElementById('stadium-filter');
+        if (stadiumFilter && stadiumFilter.value.trim() !== '') {
+            const selectedOption = stadiumFilter.options[stadiumFilter.selectedIndex];
+            const selectedStadiumName = selectedOption ? selectedOption.textContent : 'Unknown Stadium';
+            if (selectedStadiumName !== 'All Stadiums') {
+                const tag = document.createElement('div');
+                tag.className = 'filter-tag';
+                tag.innerHTML = `Stadium: ${selectedStadiumName} 
+                    <button onclick="removeFilter('stadium-filter')">&times;</button>`;
+                selectedFiltersContainer.appendChild(tag);
+            }
+        }
+
+        updateClearFiltersVisibility();
+    }
+
+    function removeFilter(filterId) {
+        if (filterId === 'capacity-filter-group') {
+            const capacityMin = document.getElementById('capacity-min');
+            const capacityMax = document.getElementById('capacity-max');
+            if (capacityMin) capacityMin.value = '';
+            if (capacityMax) capacityMax.value = '';
+        } else {
+            const element = document.getElementById(filterId);
+            if (element) {
+                element.value = ''; 
+            }
+        }
+
+        updateSelectedFilters();
+        applyFilters();
+    }
+</script>
 {% endblock %}
