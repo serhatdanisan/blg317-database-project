@@ -51,9 +51,9 @@
         }
     </style>
     <div class="center">
-        {% for key, value in session.items() %}
-            <p>{{ key }}: {{ value }}</p>
-        {% endfor %}
+        <p>Email : {{ session['email'] }}</p>
+        <p>Name : {{ session['username'] }}</p>
+        <p>Role : {{ session['role'] }}</p>
         <form method="post">
             <input type="submit" value="Delete Account">
         </form>
