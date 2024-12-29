@@ -1,12 +1,22 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from database import db
+from auth import isAdmin
 
 match_bp = Blueprint('match', __name__, template_folder="templates")
 
 @match_bp.route('/')
+@match_bp.route('/')
 def get_matches():
-    """Fetches and displays a list of all matches."""
+    """Fetches and displays a list of all matches with optional filters."""
     try:
+        date_from = request.args.get('date_from')
+        date_to = request.args.get('date_to')
+        competition = request.args.get('competition')
+        season = request.args.get('season')
+        home_club = request.args.get('home_club')
+        away_club = request.args.get('away_club')
+        winner = request.args.get('winner')
+
         query = """
         SELECT m.id, m.dateutc, m.competition, m.season, s.stadium, hc.name AS home_club, ac.name AS away_club, 
                w.name AS winner, m.goal_by_home_club, m.goal_by_away_club
@@ -15,9 +25,35 @@ def get_matches():
         LEFT JOIN club hc ON m.home_club = hc.id
         LEFT JOIN club ac ON m.away_club = ac.id
         LEFT JOIN club w ON m.winner = w.id
-        ORDER BY m.dateutc DESC;
+        WHERE 1=1
         """
-        matches = db.executeQuery(query)
+        params = []
+
+        if date_from:
+            query += " AND m.dateutc >= %s"
+            params.append(date_from)
+        if date_to:
+            query += " AND m.dateutc <= %s"
+            params.append(date_to)
+        if competition:
+            query += " AND m.competition = %s"
+            params.append(competition)
+        if season:
+            query += " AND m.season = %s"
+            params.append(season)
+        if home_club:
+            query += " AND m.home_club = %s"
+            params.append(home_club)
+        if away_club:
+            query += " AND m.away_club = %s"
+            params.append(away_club)
+        if winner:
+            query += " AND m.winner = %s"
+            params.append(winner)
+
+        query += " ORDER BY m.dateutc DESC LIMIT 100;"
+        matches = db.executeQuery(query, params)
+
         matches = [
             {
                 "id": match[0],
@@ -33,11 +69,15 @@ def get_matches():
             }
             for match in matches
         ]
-    except Exception as e:
-        matches = []
-        print(f"Error fetching matches: {e}")
-    return render_template('match/index.html', matches=matches)
 
+        clubs = [{"id": row[0], "name": row[1]} for row in db.executeQuery("SELECT id, name FROM club ORDER BY name;")]
+        competitions = [row[0] for row in db.executeQuery("SELECT DISTINCT competition FROM football_match ORDER BY competition;")]
+
+        return render_template('match/index.html', matches=matches, clubs=clubs, competitions=competitions, filters=request.args)
+
+    except Exception as e:
+        flash(f"Error fetching matches: {str(e)}", "danger")
+        return redirect(url_for('match.get_matches'))
 '''
 @match_bp.route('<int:id>')
 def get_match(id):
@@ -74,6 +114,7 @@ def get_match(id):
     return render_template('match/details.html', match=match)
 '''
 @match_bp.route('/add', methods=['GET', 'POST'])
+@isAdmin
 def add_match():
     """Adds a new match."""
     if request.method == 'POST':
@@ -104,6 +145,7 @@ def add_match():
     return render_template('match/add.html', stadiums=stadiums, clubs=clubs)
 
 @match_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+@isAdmin
 def edit_match(id):
     """Edits an existing match."""
     if request.method == 'POST':
@@ -153,6 +195,7 @@ def edit_match(id):
         return render_template('match/edit.html', match=match, stadiums=stadiums, clubs=clubs)
 
 @match_bp.route('/delete/<int:id>', methods=['POST'])
+@isAdmin
 def delete_match(id):
     """Deletes a match."""
     try:
